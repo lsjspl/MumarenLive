@@ -24,6 +24,10 @@ public class LiveChannelItem {
     public int sourceIndex = 0;
     public int sourceNum = 0;
 
+    public void setSourceNum(int sourceNum) {
+        this.sourceNum = sourceNum;
+    }
+
     public void setChannelIndex(int channelIndex) {
         this.channelIndex = channelIndex;
     }
@@ -54,7 +58,6 @@ public class LiveChannelItem {
 
     public void setChannelUrls(ArrayList<String> channelUrls) {
         this.channelUrls = channelUrls;
-        sourceNum = channelUrls.size();
     }
     public void preSource() {
         sourceIndex--;

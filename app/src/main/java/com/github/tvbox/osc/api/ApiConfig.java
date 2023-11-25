@@ -2,8 +2,12 @@ package com.github.tvbox.osc.api;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 
 import com.github.catvod.crawler.JarLoader;
 import com.github.catvod.crawler.Spider;
@@ -14,6 +18,7 @@ import com.github.tvbox.osc.bean.LiveChannelItem;
 import com.github.tvbox.osc.bean.ParseBean;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.server.ControlManager;
+import com.github.tvbox.osc.ui.activity.LivePlayActivity;
 import com.github.tvbox.osc.util.AdBlocker;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.HawkConfig;
@@ -34,11 +39,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author pj567
@@ -224,165 +235,114 @@ public class ApiConfig {
 
     private void parseJson(String apiUrl, String jsonStr) {
         JsonObject infoJson = new Gson().fromJson(jsonStr, JsonObject.class);
-        // spider
-        spider = DefaultConfig.safeJsonString(infoJson, "spider", "");
-        // 远端站点源
-        SourceBean firstSite = null;
-        for (JsonElement opt : infoJson.get("sites").getAsJsonArray()) {
-            JsonObject obj = (JsonObject) opt;
-            SourceBean sb = new SourceBean();
-            String siteKey = obj.get("key").getAsString().trim();
-            sb.setKey(siteKey);
-            sb.setName(obj.get("name").getAsString().trim());
-            sb.setType(obj.get("type").getAsInt());
-            sb.setApi(obj.get("api").getAsString().trim());
-            sb.setSearchable(DefaultConfig.safeJsonInt(obj, "searchable", 1));
-            sb.setQuickSearch(DefaultConfig.safeJsonInt(obj, "quickSearch", 1));
-            sb.setFilterable(DefaultConfig.safeJsonInt(obj, "filterable", 1));
-            sb.setPlayerUrl(DefaultConfig.safeJsonString(obj, "playUrl", ""));
-            sb.setExt(DefaultConfig.safeJsonString(obj, "ext", ""));
-            sb.setCategories(DefaultConfig.safeJsonStringList(obj, "categories"));
-            if (firstSite == null)
-                firstSite = sb;
-            sourceBeanList.put(siteKey, sb);
-        }
-        if (sourceBeanList != null && sourceBeanList.size() > 0) {
-            String home = Hawk.get(HawkConfig.HOME_API, "");
-            SourceBean sh = getSource(home);
-            if (sh == null)
-                setSourceBean(firstSite);
-            else
-                setSourceBean(sh);
-        }
-        // 需要使用vip解析的flag
-        vipParseFlags = DefaultConfig.safeJsonStringList(infoJson, "flags");
-        // 解析地址
-        for (JsonElement opt : infoJson.get("parses").getAsJsonArray()) {
-            JsonObject obj = (JsonObject) opt;
-            ParseBean pb = new ParseBean();
-            pb.setName(obj.get("name").getAsString().trim());
-            pb.setUrl(obj.get("url").getAsString().trim());
-            String ext = obj.has("ext") ? obj.get("ext").getAsJsonObject().toString() : "";
-            pb.setExt(ext);
-            pb.setType(DefaultConfig.safeJsonInt(obj, "type", 0));
-            parseBeanList.add(pb);
-        }
-        // 获取默认解析
-        if (parseBeanList != null && parseBeanList.size() > 0) {
-            String defaultParse = Hawk.get(HawkConfig.DEFAULT_PARSE, "");
-            if (!TextUtils.isEmpty(defaultParse))
-                for (ParseBean pb : parseBeanList) {
-                    if (pb.getName().equals(defaultParse))
-                        setDefaultParse(pb);
-                }
-            if (mDefaultParse == null)
-                setDefaultParse(parseBeanList.get(0));
-        }
-        // 直播源
-        liveChannelGroupList.clear();           //修复从后台切换重复加载频道列表
-        try {
-            String lives = infoJson.get("lives").getAsJsonArray().toString();
-            int index = lives.indexOf("proxy://");
-            if (index != -1) {
-                int endIndex = lives.lastIndexOf("\"");
-                String url = lives.substring(index, endIndex);
-                url = DefaultConfig.checkReplaceProxy(url);
 
-                //clan
-                String extUrl = Uri.parse(url).getQueryParameter("ext");
-                if (extUrl != null && !extUrl.isEmpty()) {
-                    String extUrlFix = new String(Base64.decode(extUrl, Base64.DEFAULT | Base64.URL_SAFE | Base64.NO_WRAP), "UTF-8");
-                    if (extUrlFix.startsWith("clan://")) {
-                        extUrlFix = clanContentFix(clanToAddress(apiUrl), extUrlFix);
-                        extUrlFix = Base64.encodeToString(extUrlFix.getBytes("UTF-8"), Base64.DEFAULT | Base64.URL_SAFE | Base64.NO_WRAP);
-                        url = url.replace(extUrl, extUrlFix);
+        JsonArray lives = infoJson.getAsJsonArray("lives");
+
+
+        String url = lives.get(0).getAsJsonObject().get("url").getAsString();
+        OkGo.<String>get(url).execute(new AbsCallback<String>() {
+
+            @Override
+            public String convertResponse(okhttp3.Response response) throws Throwable {
+                return response.body().string();
+            }
+
+            @Override
+            public void onSuccess(Response<String> response) {
+                liveChannelGroupList.clear();
+
+                LiveChannelGroup tvs = null;
+                ArrayList<LiveChannelItem> channels = new ArrayList<>();
+//                liveChannelGroupList.addAll();
+
+                String[] all = response.body().split("\\n");
+
+                LiveChannelItem lives;
+
+                Map<String,LiveChannelItem> liveMap=new HashMap<>();
+
+                for (String item : all) {
+
+                    if (item.trim().toLowerCase().isEmpty()) {
+
+                    } else if (item.trim().toLowerCase().contains("#genre#")) {
+                        tvs = new LiveChannelGroup();
+                        channels = new ArrayList<>();
+                        liveChannelGroupList.add(tvs);
+                        tvs.setGroupName(item.split(",")[0]);
+                        tvs.setGroupIndex(liveChannelGroupList.size());
+                        tvs.setLiveChannels(channels);
+                        tvs.setGroupPassword("");
+                    } else {
+
+                        String name = item.split(",")[0];
+                        String url = item.split(",")[1];
+
+                        if (liveMap.containsKey(name.trim().toLowerCase())) {
+                            lives=liveMap.get(name.trim().toLowerCase());
+                            lives.getChannelUrls().add(url);
+                            lives.getChannelSourceNames().add("");
+                            lives.setSourceNum(lives.getChannelUrls().size());
+                        } else {
+                            lives = new LiveChannelItem();
+                            liveMap.put(name.trim().toLowerCase(),lives);
+                            channels.add(lives);
+                            lives.setChannelIndex(channels.size());
+                            lives.setChannelNum(channels.size());
+                            lives.setChannelName(name);
+                            lives.setChannelUrls(new ArrayList<>());
+                            lives.getChannelUrls().add(url);
+                            lives.setChannelSourceNames(new ArrayList<>());
+                            lives.getChannelSourceNames().add("");
+                            lives.setSourceNum(lives.getChannelUrls().size());
+                        }
+
                     }
                 }
-                LiveChannelGroup liveChannelGroup = new LiveChannelGroup();
-                liveChannelGroup.setGroupName(url);
-                liveChannelGroupList.add(liveChannelGroup);
-            } else {
-                loadLives(infoJson.get("lives").getAsJsonArray());
+
             }
-        } catch (Throwable th) {
-            th.printStackTrace();
+        });
+
+
+        if (infoJson.has("ads")) {
+            // 广告地址
+            for (JsonElement host : infoJson.getAsJsonArray("ads")) {
+                AdBlocker.addAdHost(host.getAsString());
+            }
         }
-        // 广告地址
-        for (JsonElement host : infoJson.getAsJsonArray("ads")) {
-            AdBlocker.addAdHost(host.getAsString());
-        }
+
         // IJK解码配置
         boolean foundOldSelect = false;
         String ijkCodec = Hawk.get(HawkConfig.IJK_CODEC, "");
         ijkCodes = new ArrayList<>();
-        for (JsonElement opt : infoJson.get("ijk").getAsJsonArray()) {
-            JsonObject obj = (JsonObject) opt;
-            String name = obj.get("group").getAsString();
-            LinkedHashMap<String, String> baseOpt = new LinkedHashMap<>();
-            for (JsonElement cfg : obj.get("options").getAsJsonArray()) {
-                JsonObject cObj = (JsonObject) cfg;
-                String key = cObj.get("category").getAsString() + "|" + cObj.get("name").getAsString();
-                String val = cObj.get("value").getAsString();
-                baseOpt.put(key, val);
+
+        if (infoJson.has("ijk")) {
+            for (JsonElement opt : infoJson.get("ijk").getAsJsonArray()) {
+                JsonObject obj = (JsonObject) opt;
+                String name = obj.get("group").getAsString();
+                LinkedHashMap<String, String> baseOpt = new LinkedHashMap<>();
+                for (JsonElement cfg : obj.get("options").getAsJsonArray()) {
+                    JsonObject cObj = (JsonObject) cfg;
+                    String key = cObj.get("category").getAsString() + "|" + cObj.get("name").getAsString();
+                    String val = cObj.get("value").getAsString();
+                    baseOpt.put(key, val);
+                }
+                IJKCode codec = new IJKCode();
+                codec.setName(name);
+                codec.setOption(baseOpt);
+                if (name.equals(ijkCodec) || TextUtils.isEmpty(ijkCodec)) {
+                    codec.selected(true);
+                    ijkCodec = name;
+                    foundOldSelect = true;
+                } else {
+                    codec.selected(false);
+                }
+                ijkCodes.add(codec);
             }
-            IJKCode codec = new IJKCode();
-            codec.setName(name);
-            codec.setOption(baseOpt);
-            if (name.equals(ijkCodec) || TextUtils.isEmpty(ijkCodec)) {
-                codec.selected(true);
-                ijkCodec = name;
-                foundOldSelect = true;
-            } else {
-                codec.selected(false);
-            }
-            ijkCodes.add(codec);
         }
+
         if (!foundOldSelect && ijkCodes.size() > 0) {
             ijkCodes.get(0).selected(true);
-        }
-    }
-
-    public void loadLives(JsonArray livesArray) {
-        liveChannelGroupList.clear();
-        int groupIndex = 0;
-        int channelIndex = 0;
-        int channelNum = 0;
-        for (JsonElement groupElement : livesArray) {
-            LiveChannelGroup liveChannelGroup = new LiveChannelGroup();
-            liveChannelGroup.setLiveChannels(new ArrayList<LiveChannelItem>());
-            liveChannelGroup.setGroupIndex(groupIndex++);
-            String groupName = ((JsonObject) groupElement).get("group").getAsString().trim();
-            String[] splitGroupName = groupName.split("_", 2);
-            liveChannelGroup.setGroupName(splitGroupName[0]);
-            if (splitGroupName.length > 1)
-                liveChannelGroup.setGroupPassword(splitGroupName[1]);
-            else
-                liveChannelGroup.setGroupPassword("");
-            channelIndex = 0;
-            for (JsonElement channelElement : ((JsonObject) groupElement).get("channels").getAsJsonArray()) {
-                JsonObject obj = (JsonObject) channelElement;
-                LiveChannelItem liveChannelItem = new LiveChannelItem();
-                liveChannelItem.setChannelName(obj.get("name").getAsString().trim());
-                liveChannelItem.setChannelIndex(channelIndex++);
-                liveChannelItem.setChannelNum(++channelNum);
-                ArrayList<String> urls = DefaultConfig.safeJsonStringList(obj, "urls");
-                ArrayList<String> sourceNames = new ArrayList<>();
-                ArrayList<String> sourceUrls = new ArrayList<>();
-                int sourceIndex = 1;
-                for (String url : urls) {
-                    String[] splitText = url.split("\\$", 2);
-                    sourceUrls.add(splitText[0]);
-                    if (splitText.length > 1)
-                        sourceNames.add(splitText[1]);
-                    else
-                        sourceNames.add("源" + Integer.toString(sourceIndex));
-                    sourceIndex++;
-                }
-                liveChannelItem.setChannelSourceNames(sourceNames);
-                liveChannelItem.setChannelUrls(sourceUrls);
-                liveChannelGroup.getLiveChannels().add(liveChannelItem);
-            }
-            liveChannelGroupList.add(liveChannelGroup);
         }
     }
 

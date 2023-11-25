@@ -18,6 +18,7 @@
         android:focusableInTouchMode="false"
         android:orientation="horizontal">
 
+        <!--历史-->
         <LinearLayout
             android:id="@+id/tvHistory"
             android:layout_width="wrap_content"
@@ -56,7 +57,7 @@
                 android:textSize="@dimen/ts_40" />
 
         </LinearLayout>
-
+        <!--直播-->
         <LinearLayout
             android:id="@+id/tvLive"
             android:layout_width="wrap_content"
@@ -96,6 +97,7 @@
 
         </LinearLayout>
 
+        <!--搜索-->
         <LinearLayout
             android:id="@+id/tvSearch"
             android:layout_width="wrap_content"
@@ -135,7 +137,7 @@
 
         </LinearLayout>
 
-
+        <!--推送-->
         <LinearLayout
             android:id="@+id/tvPush"
             android:layout_width="wrap_content"
@@ -174,7 +176,7 @@
                 android:textSize="@dimen/ts_40" />
 
         </LinearLayout>
-
+        <!--收藏-->
         <LinearLayout
             android:id="@+id/tvFavorite"
             android:layout_width="wrap_content"
@@ -214,7 +216,7 @@
 
         </LinearLayout>
 
-
+        <!--收藏-->
         <LinearLayout
             android:id="@+id/tvSetting"
             android:layout_width="wrap_content"

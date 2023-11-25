@@ -797,7 +797,7 @@ public class LivePlayActivity extends BaseActivity {
             @Override
             public void onSuccess(Response<String> response) {
                 JsonArray livesArray = new Gson().fromJson(response.body(), JsonArray.class);
-                ApiConfig.get().loadLives(livesArray);
+//                ApiConfig.get().loadLives(livesArray);
                 List<LiveChannelGroup> list = ApiConfig.get().getChannelGroupList();
                 if (list.isEmpty()) {
                     Toast.makeText(App.getInstance(), "频道列表为空", Toast.LENGTH_SHORT).show();

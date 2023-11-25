@@ -264,13 +264,15 @@ public class HomeActivity extends BaseActivity {
             @Override
             public void success() {
                 dataInitOk = true;
-                if (ApiConfig.get().getSpider().isEmpty()) {
+                if (ApiConfig.get().getSpider()==null || ApiConfig.get().getSpider().isEmpty()) {
                     jarInitOk = true;
                 }
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         initData();
+
+                        jumpActivity(LivePlayActivity.class);
                     }
                 }, 50);
             }

@@ -116,6 +116,17 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
         tvHistory.setOnFocusChangeListener(focusChangeListener);
         tvPush.setOnFocusChangeListener(focusChangeListener);
         tvCollect.setOnFocusChangeListener(focusChangeListener);
+
+        //隐藏掉不必要的功能
+        //主页直接进入电视节目筛选
+        //为电视节目匹配一套台标
+//        tvLive.setVisibility(View.GONE);
+//        tvSetting.setVisibility(View.GONE);
+        tvSearch.setVisibility(View.GONE);
+        tvHistory.setVisibility(View.GONE);
+        tvPush.setVisibility(View.GONE);
+        tvCollect.setVisibility(View.GONE);
+
         TvRecyclerView tvHotList = findViewById(R.id.tvHotList);
         homeHotVodAdapter = new HomeHotVodAdapter();
         homeHotVodAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
