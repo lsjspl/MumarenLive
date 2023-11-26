@@ -253,6 +253,11 @@ public class M3UParser {
 
     public static void saxUrl(String url, CallBack callBack) {
 
+        if(url.equals("")){
+            callBack.run();
+            return;
+        }
+
         Toast.makeText(App.getInstance(), "正在加载。。。。", Toast.LENGTH_SHORT).show();
         OkGo.<String>get(url).execute(new AbsCallback<String>() {
             @Override
