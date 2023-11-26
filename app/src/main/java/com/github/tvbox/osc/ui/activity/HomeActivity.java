@@ -248,96 +248,96 @@ public class HomeActivity extends BaseActivity {
             }
             return;
         }
-        ApiConfig.get().loadConfig(useCacheConfig, new ApiConfig.LoadConfigCallback() {
-            TipDialog dialog = null;
-
-            @Override
-            public void retry() {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        initData();
-                    }
-                });
-            }
-
-            @Override
-            public void success() {
-                dataInitOk = true;
-                if (ApiConfig.get().getSpider()==null || ApiConfig.get().getSpider().isEmpty()) {
-                    jarInitOk = true;
-                }
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        initData();
-
-                        jumpActivity(LivePlayActivity.class);
-                    }
-                }, 50);
-            }
-
-            @Override
-            public void error(String msg) {
-                if (msg.equalsIgnoreCase("-1")) {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataInitOk = true;
-                            jarInitOk = true;
-                            initData();
-                        }
-                    });
-                    return;
-                }
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (dialog == null)
-                            dialog = new TipDialog(HomeActivity.this, msg, "重试", "取消", new TipDialog.OnListener() {
-                                @Override
-                                public void left() {
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            initData();
-                                            dialog.hide();
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void right() {
-                                    dataInitOk = true;
-                                    jarInitOk = true;
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            initData();
-                                            dialog.hide();
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void cancel() {
-                                    dataInitOk = true;
-                                    jarInitOk = true;
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            initData();
-                                            dialog.hide();
-                                        }
-                                    });
-                                }
-                            });
-                        if (!dialog.isShowing())
-                            dialog.show();
-                    }
-                });
-            }
-        }, this);
+//        ApiConfig.get().loadConfig(useCacheConfig, new ApiConfig.LoadConfigCallback() {
+//            TipDialog dialog = null;
+//
+//            @Override
+//            public void retry() {
+//                mHandler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        initData();
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void success() {
+//                dataInitOk = true;
+//                if (ApiConfig.get().getSpider()==null || ApiConfig.get().getSpider().isEmpty()) {
+//                    jarInitOk = true;
+//                }
+//                mHandler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        initData();
+//
+//                        jumpActivity(LivePlayActivity.class);
+//                    }
+//                }, 50);
+//            }
+//
+//            @Override
+//            public void error(String msg) {
+//                if (msg.equalsIgnoreCase("-1")) {
+//                    mHandler.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            dataInitOk = true;
+//                            jarInitOk = true;
+//                            initData();
+//                        }
+//                    });
+//                    return;
+//                }
+//                mHandler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (dialog == null)
+//                            dialog = new TipDialog(HomeActivity.this, msg, "重试", "取消", new TipDialog.OnListener() {
+//                                @Override
+//                                public void left() {
+//                                    mHandler.post(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            initData();
+//                                            dialog.hide();
+//                                        }
+//                                    });
+//                                }
+//
+//                                @Override
+//                                public void right() {
+//                                    dataInitOk = true;
+//                                    jarInitOk = true;
+//                                    mHandler.post(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            initData();
+//                                            dialog.hide();
+//                                        }
+//                                    });
+//                                }
+//
+//                                @Override
+//                                public void cancel() {
+//                                    dataInitOk = true;
+//                                    jarInitOk = true;
+//                                    mHandler.post(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            initData();
+//                                            dialog.hide();
+//                                        }
+//                                    });
+//                                }
+//                            });
+//                        if (!dialog.isShowing())
+//                            dialog.show();
+//                    }
+//                });
+//            }
+//        }, this);
     }
 
     private void initViewPager(AbsSortXml absXml) {

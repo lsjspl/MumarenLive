@@ -61,10 +61,8 @@ public class ApiConfig {
     private LinkedHashMap<String, SourceBean> sourceBeanList;
     private SourceBean mHomeSource;
     private ParseBean mDefaultParse;
-    private List<LiveChannelGroup> liveChannelGroupList;
     private List<ParseBean> parseBeanList;
     private List<String> vipParseFlags;
-    private List<IJKCode> ijkCodes;
     private String spider = null;
 
     private SourceBean emptyHome = new SourceBean();
@@ -74,7 +72,6 @@ public class ApiConfig {
 
     private ApiConfig() {
         sourceBeanList = new LinkedHashMap<>();
-        liveChannelGroupList = new ArrayList<>();
         parseBeanList = new ArrayList<>();
     }
 
@@ -89,82 +86,82 @@ public class ApiConfig {
         return instance;
     }
 
-    public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "");
-        if (apiUrl.isEmpty()) {
-            callback.error("-1");
-            return;
-        }
-        File cache = new File(App.getInstance().getFilesDir().getAbsolutePath() + "/" + MD5.encode(apiUrl));
-        if (useCache && cache.exists()) {
-            try {
-                parseJson(apiUrl, cache);
-                callback.success();
-                return;
-            } catch (Throwable th) {
-                th.printStackTrace();
-            }
-        }
-        String apiFix = apiUrl;
-        if (apiUrl.startsWith("clan://")) {
-            apiFix = clanToAddress(apiUrl);
-        }
-        OkGo.<String>get(apiFix)
-                .execute(new AbsCallback<String>() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            String json = response.body();
-                            parseJson(apiUrl, response.body());
-                            try {
-                                File cacheDir = cache.getParentFile();
-                                if (!cacheDir.exists())
-                                    cacheDir.mkdirs();
-                                if (cache.exists())
-                                    cache.delete();
-                                FileOutputStream fos = new FileOutputStream(cache);
-                                fos.write(json.getBytes("UTF-8"));
-                                fos.flush();
-                                fos.close();
-                            } catch (Throwable th) {
-                                th.printStackTrace();
-                            }
-                            callback.success();
-                        } catch (Throwable th) {
-                            th.printStackTrace();
-                            callback.error("解析配置失败");
-                        }
-                    }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                        if (cache.exists()) {
-                            try {
-                                parseJson(apiUrl, cache);
-                                callback.success();
-                                return;
-                            } catch (Throwable th) {
-                                th.printStackTrace();
-                            }
-                        }
-                        callback.error("拉取配置失败\n" + (response.getException() != null ? response.getException().getMessage() : ""));
-                    }
-
-                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                        String result = "";
-                        if (response.body() == null) {
-                            result = "";
-                        } else {
-                            result = response.body().string();
-                        }
-                        if (apiUrl.startsWith("clan")) {
-                            result = clanContentFix(clanToAddress(apiUrl), result);
-                        }
-                        return result;
-                    }
-                });
-    }
+//    public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
+//        String apiUrl = Hawk.get(HawkConfig.API_URL, "");
+//        if (apiUrl.isEmpty()) {
+//            callback.error("-1");
+//            return;
+//        }
+//        File cache = new File(App.getInstance().getFilesDir().getAbsolutePath() + "/" + MD5.encode(apiUrl));
+//        if (useCache && cache.exists()) {
+//            try {
+//                parseJson(apiUrl, cache);
+//                callback.success();
+//                return;
+//            } catch (Throwable th) {
+//                th.printStackTrace();
+//            }
+//        }
+//        String apiFix = apiUrl;
+//        if (apiUrl.startsWith("clan://")) {
+//            apiFix = clanToAddress(apiUrl);
+//        }
+//        OkGo.<String>get(apiFix)
+//                .execute(new AbsCallback<String>() {
+//                    @Override
+//                    public void onSuccess(Response<String> response) {
+//                        try {
+//                            String json = response.body();
+//                            parseJson(apiUrl, response.body());
+//                            try {
+//                                File cacheDir = cache.getParentFile();
+//                                if (!cacheDir.exists())
+//                                    cacheDir.mkdirs();
+//                                if (cache.exists())
+//                                    cache.delete();
+//                                FileOutputStream fos = new FileOutputStream(cache);
+//                                fos.write(json.getBytes("UTF-8"));
+//                                fos.flush();
+//                                fos.close();
+//                            } catch (Throwable th) {
+//                                th.printStackTrace();
+//                            }
+//                            callback.success();
+//                        } catch (Throwable th) {
+//                            th.printStackTrace();
+//                            callback.error("解析配置失败");
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Response<String> response) {
+//                        super.onError(response);
+//                        if (cache.exists()) {
+//                            try {
+//                                parseJson(apiUrl, cache);
+//                                callback.success();
+//                                return;
+//                            } catch (Throwable th) {
+//                                th.printStackTrace();
+//                            }
+//                        }
+//                        callback.error("拉取配置失败\n" + (response.getException() != null ? response.getException().getMessage() : ""));
+//                    }
+//
+//                    public String convertResponse(okhttp3.Response response) throws Throwable {
+//                        String result = "";
+//                        if (response.body() == null) {
+//                            result = "";
+//                        } else {
+//                            result = response.body().string();
+//                        }
+//                        if (apiUrl.startsWith("clan")) {
+//                            result = clanContentFix(clanToAddress(apiUrl), result);
+//                        }
+//                        return result;
+//                    }
+//                });
+//    }
 
 
     public void loadJar(boolean useCache, String spider, LoadConfigCallback callback) {
@@ -221,129 +218,20 @@ public class ApiConfig {
         });
     }
 
-    private void parseJson(String apiUrl, File f) throws Throwable {
-        System.out.println("从本地缓存加载" + f.getAbsolutePath());
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
-        StringBuilder sb = new StringBuilder();
-        String s = "";
-        while ((s = bReader.readLine()) != null) {
-            sb.append(s + "\n");
-        }
-        bReader.close();
-        parseJson(apiUrl, sb.toString());
-    }
+//    private void parseJson(String apiUrl, File f) throws Throwable {
+//        System.out.println("从本地缓存加载" + f.getAbsolutePath());
+//        BufferedReader bReader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
+//        StringBuilder sb = new StringBuilder();
+//        String s = "";
+//        while ((s = bReader.readLine()) != null) {
+//            sb.append(s + "\n");
+//        }
+//        bReader.close();
+//        parseJson(apiUrl, sb.toString());
+//    }
 
     private void parseJson(String apiUrl, String jsonStr) {
-        JsonObject infoJson = new Gson().fromJson(jsonStr, JsonObject.class);
 
-        JsonArray lives = infoJson.getAsJsonArray("lives");
-
-
-        String url = lives.get(0).getAsJsonObject().get("url").getAsString();
-        OkGo.<String>get(url).execute(new AbsCallback<String>() {
-
-            @Override
-            public String convertResponse(okhttp3.Response response) throws Throwable {
-                return response.body().string();
-            }
-
-            @Override
-            public void onSuccess(Response<String> response) {
-                liveChannelGroupList.clear();
-
-                LiveChannelGroup tvs = null;
-                ArrayList<LiveChannelItem> channels = new ArrayList<>();
-//                liveChannelGroupList.addAll();
-
-                String[] all = response.body().split("\\n");
-
-                LiveChannelItem lives;
-
-                Map<String,LiveChannelItem> liveMap=new HashMap<>();
-
-                for (String item : all) {
-
-                    if (item.trim().toLowerCase().isEmpty()) {
-
-                    } else if (item.trim().toLowerCase().contains("#genre#")) {
-                        tvs = new LiveChannelGroup();
-                        channels = new ArrayList<>();
-                        liveChannelGroupList.add(tvs);
-                        tvs.setGroupName(item.split(",")[0]);
-                        tvs.setGroupIndex(liveChannelGroupList.size());
-                        tvs.setLiveChannels(channels);
-                        tvs.setGroupPassword("");
-                    } else {
-
-                        String name = item.split(",")[0];
-                        String url = item.split(",")[1];
-
-                        if (liveMap.containsKey(name.trim().toLowerCase())) {
-                            lives=liveMap.get(name.trim().toLowerCase());
-                            lives.getChannelUrls().add(url);
-                            lives.getChannelSourceNames().add("");
-                            lives.setSourceNum(lives.getChannelUrls().size());
-                        } else {
-                            lives = new LiveChannelItem();
-                            liveMap.put(name.trim().toLowerCase(),lives);
-                            channels.add(lives);
-                            lives.setChannelIndex(channels.size());
-                            lives.setChannelNum(channels.size());
-                            lives.setChannelName(name);
-                            lives.setChannelUrls(new ArrayList<>());
-                            lives.getChannelUrls().add(url);
-                            lives.setChannelSourceNames(new ArrayList<>());
-                            lives.getChannelSourceNames().add("");
-                            lives.setSourceNum(lives.getChannelUrls().size());
-                        }
-
-                    }
-                }
-
-            }
-        });
-
-
-        if (infoJson.has("ads")) {
-            // 广告地址
-            for (JsonElement host : infoJson.getAsJsonArray("ads")) {
-                AdBlocker.addAdHost(host.getAsString());
-            }
-        }
-
-        // IJK解码配置
-        boolean foundOldSelect = false;
-        String ijkCodec = Hawk.get(HawkConfig.IJK_CODEC, "");
-        ijkCodes = new ArrayList<>();
-
-        if (infoJson.has("ijk")) {
-            for (JsonElement opt : infoJson.get("ijk").getAsJsonArray()) {
-                JsonObject obj = (JsonObject) opt;
-                String name = obj.get("group").getAsString();
-                LinkedHashMap<String, String> baseOpt = new LinkedHashMap<>();
-                for (JsonElement cfg : obj.get("options").getAsJsonArray()) {
-                    JsonObject cObj = (JsonObject) cfg;
-                    String key = cObj.get("category").getAsString() + "|" + cObj.get("name").getAsString();
-                    String val = cObj.get("value").getAsString();
-                    baseOpt.put(key, val);
-                }
-                IJKCode codec = new IJKCode();
-                codec.setName(name);
-                codec.setOption(baseOpt);
-                if (name.equals(ijkCodec) || TextUtils.isEmpty(ijkCodec)) {
-                    codec.selected(true);
-                    ijkCodec = name;
-                    foundOldSelect = true;
-                } else {
-                    codec.selected(false);
-                }
-                ijkCodes.add(codec);
-            }
-        }
-
-        if (!foundOldSelect && ijkCodes.size() > 0) {
-            ijkCodes.get(0).selected(true);
-        }
     }
 
     public String getSpider() {
@@ -419,26 +307,6 @@ public class ApiConfig {
         return mHomeSource == null ? emptyHome : mHomeSource;
     }
 
-    public List<LiveChannelGroup> getChannelGroupList() {
-        return liveChannelGroupList;
-    }
-
-    public List<IJKCode> getIjkCodes() {
-        return ijkCodes;
-    }
-
-    public IJKCode getCurrentIJKCode() {
-        String codeName = Hawk.get(HawkConfig.IJK_CODEC, "");
-        return getIJKCodec(codeName);
-    }
-
-    public IJKCode getIJKCodec(String name) {
-        for (IJKCode code : ijkCodes) {
-            if (code.getName().equals(name))
-                return code;
-        }
-        return ijkCodes.get(0);
-    }
 
     String clanToAddress(String lanLink) {
         if (lanLink.startsWith("clan://localhost/")) {

@@ -25,6 +25,7 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
+import com.github.tvbox.osc.util.m3u.M3UParser;
 import com.orhanobut.hawk.Hawk;
 
 import org.greenrobot.eventbus.EventBus;
@@ -168,6 +169,9 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 }
             }
         });
+
+        findViewById(R.id.llHomeApi).setVisibility(View.GONE);
+
         findViewById(R.id.llDns).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -230,7 +234,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         findViewById(R.id.llMediaCodec).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<IJKCode> ijkCodes = ApiConfig.get().getIjkCodes();
+                List<IJKCode> ijkCodes = M3UParser.ijkCodes;
                 if (ijkCodes == null || ijkCodes.size() == 0)
                     return;
                 FastClickCheckUtil.check(v);

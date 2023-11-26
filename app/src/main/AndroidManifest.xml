@@ -26,7 +26,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".ui.activity.HomeActivity"
+            android:name=".ui.activity.LivePlayActivity"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,8 +37,9 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.LivePlayActivity"
+            android:name=".ui.activity.HomeActivity"
             android:screenOrientation="landscape" />
+
         <activity
             android:name=".ui.activity.DetailActivity"
             android:screenOrientation="landscape" />

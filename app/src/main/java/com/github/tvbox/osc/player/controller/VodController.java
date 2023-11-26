@@ -22,6 +22,7 @@ import com.github.tvbox.osc.player.thirdparty.ReexPlayer;
 import com.github.tvbox.osc.ui.adapter.ParseAdapter;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.PlayerHelper;
+import com.github.tvbox.osc.util.m3u.M3UParser;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
@@ -262,7 +263,7 @@ public class VodController extends BaseController {
             public void onClick(View view) {
                 try {
                     String ijk = mPlayerConfig.getString("ijk");
-                    List<IJKCode> codecs = ApiConfig.get().getIjkCodes();
+                    List<IJKCode> codecs = M3UParser.ijkCodes;
                     for (int i = 0; i < codecs.size(); i++) {
                         if (ijk.equals(codecs.get(i).getName())) {
                             if (i >= codecs.size() - 1)

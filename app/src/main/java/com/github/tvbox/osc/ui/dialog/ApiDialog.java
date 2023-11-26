@@ -16,6 +16,7 @@ import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.m3u.M3UParser;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
@@ -60,16 +61,23 @@ public class ApiDialog extends BaseDialog {
             @Override
             public void onClick(View v) {
                 String newApi = inputApi.getText().toString().trim();
-                if (!newApi.isEmpty() && (newApi.startsWith("http") || newApi.startsWith("clan"))) {
-                    ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
-                    if (!history.contains(newApi))
-                        history.add(0, newApi);
-                    if (history.size() > 10)
-                        history.remove(10);
-                    Hawk.put(HawkConfig.API_HISTORY, history);
-                    listener.onchange(newApi);
-                    dismiss();
-                }
+                M3UParser.saxUrl(newApi, () -> {
+
+                    //解析正常才进行保存之类的操作
+                    if (!newApi.isEmpty() && (newApi.startsWith("http") || newApi.startsWith("clan"))) {
+                        ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
+                        if (!history.contains(newApi))
+                            history.add(0, newApi);
+                        if (history.size() > 10)
+                            history.remove(10);
+                        Hawk.put(HawkConfig.API_HISTORY, history);
+
+                        listener.onchange(newApi);
+                        dismiss();
+                    }
+                });
+
+
             }
         });
         findViewById(R.id.apiHistory).setOnClickListener(new View.OnClickListener() {

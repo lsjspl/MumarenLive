@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.bean.IJKCode;
+import com.github.tvbox.osc.util.m3u.M3UParser;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class IjkMediaPlayer extends IjkPlayer {
     @Override
     public void setOptions() {
         super.setOptions();
-        IJKCode codecTmp = this.codec == null ? ApiConfig.get().getCurrentIJKCode() : this.codec;
+        IJKCode codecTmp = this.codec == null ? M3UParser.getCurrentIJKCode(): this.codec;
         LinkedHashMap<String, String> options = codecTmp.getOption();
         if (options != null) {
             for (String key : options.keySet()) {
