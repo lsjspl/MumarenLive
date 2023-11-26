@@ -240,7 +240,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 FastClickCheckUtil.check(v);
 
                 int defaultPos = 0;
-                String ijkSel = Hawk.get(HawkConfig.IJK_CODEC, "");
+                String ijkSel = Hawk.get(HawkConfig.IJK_CODEC, "硬解码");
                 for (int j = 0; j < ijkCodes.size(); j++) {
                     if (ijkSel.equals(ijkCodes.get(j).getName())) {
                         defaultPos = j;
@@ -387,6 +387,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
+        findViewById(R.id.llHomeRec).setVisibility(View.GONE);
         findViewById(R.id.llHomeRec).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -423,6 +425,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
+
+        findViewById(R.id.llSearchView).setVisibility(View.GONE);
         findViewById(R.id.llSearchView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

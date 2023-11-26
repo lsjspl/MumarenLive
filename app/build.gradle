@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('D:\\Mr5\\Desktop\\mm5.jks')
+            storePassword '123698745'
+            keyPassword '123698745'
+            keyAlias 'key0'
+        }
+    }
     compileSdkVersion 30
 
     defaultConfig {
@@ -16,6 +24,7 @@ android {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+        versionNameSuffix 'beta'
     }
 
     packagingOptions {

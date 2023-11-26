@@ -23,6 +23,7 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.base.BaseActivity;
+import com.github.tvbox.osc.base.BaseLazyFragment;
 import com.github.tvbox.osc.bean.LiveChannelGroup;
 import com.github.tvbox.osc.bean.LiveChannelItem;
 import com.github.tvbox.osc.bean.LivePlayerManager;
@@ -35,6 +36,8 @@ import com.github.tvbox.osc.ui.adapter.LiveChannelItemAdapter;
 import com.github.tvbox.osc.ui.adapter.LiveSettingGroupAdapter;
 import com.github.tvbox.osc.ui.adapter.LiveSettingItemAdapter;
 import com.github.tvbox.osc.ui.dialog.LivePasswordDialog;
+import com.github.tvbox.osc.ui.dialog.TipDialog;
+import com.github.tvbox.osc.ui.fragment.GridFragment;
 import com.github.tvbox.osc.ui.tv.widget.ViewObj;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
@@ -89,6 +92,7 @@ public class LivePlayActivity extends BaseActivity {
     private LiveChannelItem currentLiveChannelItem = null;
     private LivePlayerManager livePlayerManager = new LivePlayerManager();
     private ArrayList<Integer> channelGroupPasswordConfirmed = new ArrayList<>();
+
     @Override
     protected int getLayoutResID() {
         return R.layout.activity_live_play;
@@ -109,7 +113,9 @@ public class LivePlayActivity extends BaseActivity {
         tvTime = findViewById(R.id.tvTime);
         tvNetSpeed = findViewById(R.id.tvNetSpeed);
 
+        ControlManager.get().startServer();
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
+
         M3UParser.saxUrl(apiUrl, () -> {
             initVideoView();
             initChannelGroupView();
@@ -118,8 +124,8 @@ public class LivePlayActivity extends BaseActivity {
             initSettingItemView();
             initLiveChannelList();
             initLiveSettingGroupList();
-            ControlManager.get().startServer();
-        });
+
+        }, () -> jumpActivity(SettingActivity.class));
 
     }
 
@@ -128,15 +134,14 @@ public class LivePlayActivity extends BaseActivity {
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.post(mHideChannelListRun);
-        }
-        else if (tvRightSettingLayout.getVisibility() == View.VISIBLE) {
+        } else if (tvRightSettingLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideSettingLayoutRun);
             mHandler.post(mHideSettingLayoutRun);
-        }
-        else {
+        } else {
             mHandler.removeCallbacks(mConnectTimeoutChangeSourceRun);
             mHandler.removeCallbacks(mUpdateNetSpeedRun);
             super.onBackPressed();
+            exit();
         }
     }
 
@@ -178,15 +183,70 @@ public class LivePlayActivity extends BaseActivity {
         return super.dispatchKeyEvent(event);
     }
 
+    TipDialog dialog = null;
+
     @Override
     protected void onResume() {
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "");
         super.onResume();
         if (mVideoView != null) {
             mVideoView.resume();
+
         }
+
+
+        mHandler.postDelayed(() -> {
+            if ((apiUrl.isEmpty() || M3UParser.liveChannelGroupList.isEmpty()) && !dialog.isShowing()) {
+                dialog.show();
+            }
+        },3000);
+
+        if (dialog == null) {
+            dialog = new TipDialog(LivePlayActivity.this, "没有加载到数据，请选择", "重试", "设置", new TipDialog.OnListener() {
+                @Override
+                public void left() {
+                    dialog.hide();
+
+                    M3UParser.saxUrl(apiUrl, () -> {
+                        initVideoView();
+                        initChannelGroupView();
+                        initLiveChannelView();
+                        initSettingGroupView();
+                        initSettingItemView();
+                        initLiveChannelList();
+                        initLiveSettingGroupList();
+
+                    }, () -> jumpActivity(SettingActivity.class));
+                }
+
+                @Override
+                public void right() {
+                    dialog.hide();
+                    jumpActivity(SettingActivity.class);
+                }
+
+                @Override
+                public void cancel() {
+                    dialog.hide();
+                }
+            });
+
+        }
+
+
+
     }
 
 
+    private long mExitTime = 0;
+    private void exit() {
+        if (System.currentTimeMillis() - mExitTime < 2000) {
+            super.onBackPressed();
+        } else {
+            mExitTime = System.currentTimeMillis();
+            Toast.makeText(mContext, "再按一次返回键退出应用", Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     protected void onPause() {
         super.onPause();
@@ -729,7 +789,7 @@ public class LivePlayActivity extends BaseActivity {
         switch (settingGroupIndex) {
             case 0://线路切换
                 currentLiveChannelItem.setSourceIndex(position);
-                playChannel(currentChannelGroupIndex, currentLiveChannelIndex,true);
+                playChannel(currentChannelGroupIndex, currentLiveChannelIndex, true);
                 break;
             case 1://画面比例
                 livePlayerManager.changeLivePlayerScale(mVideoView, position, currentLiveChannelItem.getChannelName());
@@ -826,7 +886,7 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void initLiveSettingGroupList() {
-        ArrayList<String> groupNames = new ArrayList<>(Arrays.asList("线路选择", "画面比例", "播放解码", "超时换源", "偏好设置","系统设置"));
+        ArrayList<String> groupNames = new ArrayList<>(Arrays.asList("线路选择", "画面比例", "播放解码", "超时换源", "偏好设置", "系统设置"));
         ArrayList<ArrayList<String>> itemsArrayList = new ArrayList<>();
         ArrayList<String> sourceItems = new ArrayList<>();
         ArrayList<String> scaleItems = new ArrayList<>(Arrays.asList("默认", "16:9", "4:3", "填充", "原始", "裁剪"));
@@ -888,7 +948,7 @@ public class LivePlayActivity extends BaseActivity {
     private Runnable mUpdateTimeRun = new Runnable() {
         @Override
         public void run() {
-            Date day=new Date();
+            Date day = new Date();
             SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
             tvTime.setText(df.format(day));
             mHandler.postDelayed(this, 1000);
@@ -909,7 +969,7 @@ public class LivePlayActivity extends BaseActivity {
         @Override
         public void run() {
             if (mVideoView == null) return;
-            tvNetSpeed.setText(String.format("%.2fMB/s", (float)mVideoView.getTcpSpeed() / 1024.0 / 1024.0));
+            tvNetSpeed.setText(String.format("%.2fMB/s", (float) mVideoView.getTcpSpeed() / 1024.0 / 1024.0));
             mHandler.postDelayed(this, 1000);
         }
     };
@@ -950,8 +1010,7 @@ public class LivePlayActivity extends BaseActivity {
             if (currentLiveChannelIndex > -1)
                 mLiveChannelView.scrollToPosition(currentLiveChannelIndex);
             liveChannelItemAdapter.setSelectedChannelIndex(currentLiveChannelIndex);
-        }
-        else {
+        } else {
             mLiveChannelView.scrollToPosition(0);
             liveChannelItemAdapter.setSelectedChannelIndex(-1);
         }
@@ -1038,4 +1097,6 @@ public class LivePlayActivity extends BaseActivity {
         }
         return true;
     }
+
+
 }

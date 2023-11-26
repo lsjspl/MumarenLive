@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
+import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 
 import java.util.ArrayList;
@@ -32,86 +33,8 @@ public class M3UParser {
 
 
     private static String defaultIjkStr = " [\n" +
-            "        {\n" +
-            "          \"group\": \"软解码\",\n" +
-            "          \"options\": [\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"opensles\",\n" +
-            "              \"value\": \"0\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"overlay-format\",\n" +
-            "              \"value\": \"842225234\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"framedrop\",\n" +
-            "              \"value\": \"1\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"soundtouch\",\n" +
-            "              \"value\": \"1\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"start-on-prepared\",\n" +
-            "              \"value\": \"1\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 1,\n" +
-            "              \"name\": \"http-detect-range-support\",\n" +
-            "              \"value\": \"0\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 1,\n" +
-            "              \"name\": \"fflags\",\n" +
-            "              \"value\": \"fastseek\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 2,\n" +
-            "              \"name\": \"skip_loop_filter\",\n" +
-            "              \"value\": \"48\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"reconnect\",\n" +
-            "              \"value\": \"1\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"max-buffer-size\",\n" +
-            "              \"value\": \"5242880\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"enable-accurate-seek\",\n" +
-            "              \"value\": \"0\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"mediacodec\",\n" +
-            "              \"value\": \"0\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"mediacodec-auto-rotate\",\n" +
-            "              \"value\": \"0\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"mediacodec-handle-resolution-change\",\n" +
-            "              \"value\": \"0\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "              \"category\": 4,\n" +
-            "              \"name\": \"mediacodec-hevc\",\n" +
-            "              \"value\": \"0\"\n" +
-            "            }\n" +
-            "          ]\n" +
-            "        },\n" +
+
+
             "        {\n" +
             "          \"group\": \"硬解码\",\n" +
             "          \"options\": [\n" +
@@ -191,7 +114,89 @@ public class M3UParser {
             "              \"value\": \"1\"\n" +
             "            }\n" +
             "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"group\": \"软解码\",\n" +
+            "          \"options\": [\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"opensles\",\n" +
+            "              \"value\": \"0\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"overlay-format\",\n" +
+            "              \"value\": \"842225234\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"framedrop\",\n" +
+            "              \"value\": \"1\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"soundtouch\",\n" +
+            "              \"value\": \"1\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"start-on-prepared\",\n" +
+            "              \"value\": \"1\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 1,\n" +
+            "              \"name\": \"http-detect-range-support\",\n" +
+            "              \"value\": \"0\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 1,\n" +
+            "              \"name\": \"fflags\",\n" +
+            "              \"value\": \"fastseek\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 2,\n" +
+            "              \"name\": \"skip_loop_filter\",\n" +
+            "              \"value\": \"48\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"reconnect\",\n" +
+            "              \"value\": \"1\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"max-buffer-size\",\n" +
+            "              \"value\": \"5242880\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"enable-accurate-seek\",\n" +
+            "              \"value\": \"0\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"mediacodec\",\n" +
+            "              \"value\": \"0\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"mediacodec-auto-rotate\",\n" +
+            "              \"value\": \"0\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"mediacodec-handle-resolution-change\",\n" +
+            "              \"value\": \"0\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"category\": 4,\n" +
+            "              \"name\": \"mediacodec-hevc\",\n" +
+            "              \"value\": \"0\"\n" +
+            "            }\n" +
+            "          ]\n" +
             "        }\n" +
+
+
             "      ]";
 
 
@@ -251,15 +256,23 @@ public class M3UParser {
 
     public static List<LiveChannelGroup> liveChannelGroupList = new ArrayList<>();
 
-    public static void saxUrl(String url, CallBack callBack) {
+    public static void saxUrl(String url, CallBack success,CallBack failed) {
 
         if(url.equals("")){
-            callBack.run();
+            failed.run();
             return;
         }
 
         Toast.makeText(App.getInstance(), "正在加载。。。。", Toast.LENGTH_SHORT).show();
         OkGo.<String>get(url).execute(new AbsCallback<String>() {
+
+            @Override
+            public void onError(Response<String> response) {
+                super.onError(response);
+                Toast.makeText(App.getInstance(), "加载失败。。。", Toast.LENGTH_SHORT).show();
+                failed.run();
+            }
+
             @Override
             public String convertResponse(okhttp3.Response response) throws Throwable {
                 return response.body().string();
@@ -282,15 +295,13 @@ public class M3UParser {
                     }
                     //普通模式
                     Toast.makeText(App.getInstance(), "加载成功。。。", Toast.LENGTH_SHORT).show();
-                    callBack.run();
+                    success.run();
                 } catch (Exception e) {
                     Toast.makeText(App.getInstance(), "加载失败。。。", Toast.LENGTH_SHORT).show();
                     liveChannelGroupList.clear();
-                    callBack.run();
+                    failed.run();
                     Log.i("1", "", e);
                 }
-
-
             }
 
         });
