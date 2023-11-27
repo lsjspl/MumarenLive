@@ -210,7 +210,7 @@ public class M3UParser {
         if (url.startsWith("clan://")) {
             url = clanToAddress(url);
         }
-        Log.d("load:"+url);
+        Log.d("load:" + url);
 
         Toast.makeText(App.getInstance(), "正在加载。。。。", Toast.LENGTH_SHORT).show();
         OkGo.<String>get(url).execute(new AbsCallback<String>() {
@@ -249,7 +249,7 @@ public class M3UParser {
                     Toast.makeText(App.getInstance(), "加载成功。。。", Toast.LENGTH_SHORT).show();
                     success.run();
                 } catch (Exception e) {
-                    Log.e("加载失败",e);
+                    Log.e("加载失败", e);
                     Toast.makeText(App.getInstance(), "加载失败。。。", Toast.LENGTH_SHORT).show();
                     liveChannelGroupList.clear();
                     failed.run();
@@ -258,6 +258,7 @@ public class M3UParser {
 
         });
     }
+
     static JsonArray defaultIjk = new Gson().fromJson(defaultIjkStr, JsonArray.class);
 
     static {
@@ -313,7 +314,6 @@ public class M3UParser {
     }
 
 
-
     private static void parseM3uContent(ArrayList<ChannelInfo> channelInfos) {
         liveChannelGroupList.clear();
         LiveChannelGroup group;
@@ -354,6 +354,7 @@ public class M3UParser {
                 channel.setChannelIndex(channels.size());
                 channel.setChannelNum(channels.size());
                 channel.setChannelName(name);
+                channel.setLogoUrl(channelInfo.getTvgLogo());
                 channel.setChannelUrls(new ArrayList<>());
                 channel.getChannelUrls().add(url);
                 channel.setChannelSourceNames(new ArrayList<>());

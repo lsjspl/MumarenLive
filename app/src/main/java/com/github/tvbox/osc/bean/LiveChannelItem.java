@@ -23,6 +23,15 @@ public class LiveChannelItem {
     private ArrayList<String> channelUrls;
     public int sourceIndex = 0;
 
+    public String logoUrl;
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
 
     public void setChannelIndex(int channelIndex) {
         this.channelIndex = channelIndex;

@@ -11,20 +11,19 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.github.tvbox.osc.R;
-import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.base.BaseActivity;
-import com.github.tvbox.osc.base.BaseLazyFragment;
 import com.github.tvbox.osc.bean.LiveChannelGroup;
 import com.github.tvbox.osc.bean.LiveChannelItem;
 import com.github.tvbox.osc.bean.LivePlayerManager;
@@ -38,19 +37,14 @@ import com.github.tvbox.osc.ui.adapter.LiveSettingGroupAdapter;
 import com.github.tvbox.osc.ui.adapter.LiveSettingItemAdapter;
 import com.github.tvbox.osc.ui.dialog.LivePasswordDialog;
 import com.github.tvbox.osc.ui.dialog.TipDialog;
-import com.github.tvbox.osc.ui.fragment.GridFragment;
 import com.github.tvbox.osc.ui.tv.widget.ViewObj;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.m3u.M3UParser;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.AbsCallback;
-import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,6 +52,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
 import xyz.doikki.videoplayer.player.VideoView;
 
@@ -69,6 +64,15 @@ import xyz.doikki.videoplayer.player.VideoView;
 public class LivePlayActivity extends BaseActivity {
     private VideoView mVideoView;
     private TextView tvChannelInfo;
+
+    private RelativeLayout tvBottomView;
+
+    private ImageView tvIconView;
+    private TextView tvNumView;
+    private TextView tvNameView;
+    private TextView tvInfoView;
+
+
     private TextView tvTime;
     private TextView tvNetSpeed;
     private LinearLayout tvLeftChannelListLayout;
@@ -112,13 +116,21 @@ public class LivePlayActivity extends BaseActivity {
         tvRightSettingLayout = findViewById(R.id.tvRightSettingLayout);
         mSettingGroupView = findViewById(R.id.mSettingGroupView);
         mSettingItemView = findViewById(R.id.mSettingItemView);
+
         tvChannelInfo = findViewById(R.id.tvChannel);
         tvTime = findViewById(R.id.tvTime);
         tvNetSpeed = findViewById(R.id.tvNetSpeed);
 
+
+        tvBottomView = findViewById(R.id.tvBottomView);
+        tvIconView = findViewById(R.id.tvIconView);
+        tvNameView = findViewById(R.id.tvNameView);
+        tvInfoView = findViewById(R.id.tvInfoView);
+        tvNumView = findViewById(R.id.tvNumView);
+
         ControlManager.get().startServer();
 
-        loadLiveChannels(Hawk.get(HawkConfig.API_URL, ""));
+        loadLiveChannels(Hawk.get(HawkConfig.API_URL, ""),null);
     }
 
     @Override
@@ -183,27 +195,24 @@ public class LivePlayActivity extends BaseActivity {
         super.onResume();
         if (mVideoView != null) {
             mVideoView.resume();
-
         }
 
-        if(!currentApiUrl.equals(apiUrl)){
-            loadLiveChannels(apiUrl);
+        if (!currentApiUrl.equals(apiUrl)) {
+            loadLiveChannels(apiUrl,() -> dialog.show());
         }
-
 
         mHandler.postDelayed(() -> {
             if ((apiUrl.isEmpty() || M3UParser.liveChannelGroupList.isEmpty()) && !dialog.isShowing()) {
                 dialog.show();
             }
-        },3000);
+        }, 3000);
 
         if (dialog == null) {
             dialog = new TipDialog(LivePlayActivity.this, "没有加载到数据，请选择", "重试", "设置", new TipDialog.OnListener() {
                 @Override
                 public void left() {
                     dialog.hide();
-
-                    loadLiveChannels(apiUrl);
+                    loadLiveChannels(apiUrl, () -> dialog.show());
                 }
 
                 @Override
@@ -217,17 +226,13 @@ public class LivePlayActivity extends BaseActivity {
                     dialog.hide();
                 }
             });
-
         }
-
-
-
     }
 
-    private void loadLiveChannels(String apiUrl) {
+    private void loadLiveChannels(String apiUrl, M3UParser.CallBack failed) {
 
-        Log.d("log debug:","load");
-        currentApiUrl=apiUrl;
+        Log.d("log debug:", "load");
+        currentApiUrl = apiUrl;
         M3UParser.saxUrl(apiUrl, () -> {
             initVideoView();
             initChannelGroupView();
@@ -237,11 +242,12 @@ public class LivePlayActivity extends BaseActivity {
             initLiveChannelList();
             initLiveSettingGroupList();
 
-        }, () -> jumpActivity(SettingActivity.class));
+        }, failed == null ? () -> jumpActivity(SettingActivity.class):failed);
     }
 
 
     private long mExitTime = 0;
+
     private void exit() {
         if (System.currentTimeMillis() - mExitTime < 2000) {
             super.onBackPressed();
@@ -250,6 +256,7 @@ public class LivePlayActivity extends BaseActivity {
             Toast.makeText(mContext, "再按一次返回键退出应用", Toast.LENGTH_SHORT).show();
         }
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -335,6 +342,8 @@ public class LivePlayActivity extends BaseActivity {
         }
     };
 
+
+    //显示台信息
     private void showChannelInfo() {
         tvChannelInfo.setText(String.format(Locale.getDefault(), "%d %s %s(%d/%d)", currentLiveChannelItem.getChannelNum(),
                 currentLiveChannelItem.getChannelName(), currentLiveChannelItem.getSourceName(),
@@ -355,11 +364,26 @@ public class LivePlayActivity extends BaseActivity {
         tvChannelInfo.setVisibility(View.VISIBLE);
         mHandler.removeCallbacks(mHideChannelInfoRun);
         mHandler.postDelayed(mHideChannelInfoRun, 3000);
+
+        //bottom
+
+        if (currentLiveChannelItem.logoUrl != null && !currentLiveChannelItem.logoUrl.isEmpty()) {
+            Picasso.get().load(currentLiveChannelItem.logoUrl).into(tvIconView);
+            tvIconView.setVisibility(View.VISIBLE);
+        }
+        tvNumView.setText(currentLiveChannelItem.getChannelNum() + "");
+        tvNameView.setText(currentLiveChannelItem.getChannelName());
+        tvInfoView.setText(String.format(Locale.getDefault(), " %s(%d/%d)", currentLiveChannelItem.getSourceName(),
+                currentLiveChannelItem.getSourceIndex() + 1, currentLiveChannelItem.getChannelUrls().size()));
+
+        tvBottomView.setVisibility(View.VISIBLE);
     }
 
     private Runnable mHideChannelInfoRun = new Runnable() {
         @Override
         public void run() {
+            tvIconView.setVisibility(View.GONE);
+            tvBottomView.setVisibility(View.GONE);
             tvChannelInfo.setVisibility(View.INVISIBLE);
         }
     };
@@ -373,8 +397,9 @@ public class LivePlayActivity extends BaseActivity {
         mVideoView.release();
         if (!changeSource) {
             currentChannelGroupIndex = channelGroupIndex;
+            ArrayList<LiveChannelItem> liveChannels = getLiveChannels(currentChannelGroupIndex);
             currentLiveChannelIndex = liveChannelIndex;
-            currentLiveChannelItem = getLiveChannels(currentChannelGroupIndex).get(currentLiveChannelIndex);
+            currentLiveChannelItem = liveChannels.get(liveChannels.size() > currentLiveChannelIndex ? currentLiveChannelIndex : 0);
             Hawk.put(HawkConfig.LIVE_CHANNEL, currentLiveChannelItem.getChannelName());
             livePlayerManager.getLiveChannelPlayer(mVideoView, currentLiveChannelItem.getChannelName());
         }
@@ -1040,7 +1065,7 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private ArrayList<LiveChannelItem> getLiveChannels(int groupIndex) {
-        if (!isNeedInputPassword(groupIndex)) {
+        if (!isNeedInputPassword(groupIndex) && liveChannelGroupList.size() > groupIndex) {
             return liveChannelGroupList.get(groupIndex).getLiveChannels();
         } else {
             return new ArrayList<>();

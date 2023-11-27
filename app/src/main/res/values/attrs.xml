@@ -48,4 +48,6 @@
         <attr name="endColor" />
         <attr name="topDelta" />
     </declare-styleable>
+
+
 </resources>
