@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -93,6 +94,8 @@ public class LivePlayActivity extends BaseActivity {
     private LivePlayerManager livePlayerManager = new LivePlayerManager();
     private ArrayList<Integer> channelGroupPasswordConfirmed = new ArrayList<>();
 
+    String currentApiUrl = "";
+
     @Override
     protected int getLayoutResID() {
         return R.layout.activity_live_play;
@@ -114,19 +117,8 @@ public class LivePlayActivity extends BaseActivity {
         tvNetSpeed = findViewById(R.id.tvNetSpeed);
 
         ControlManager.get().startServer();
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "");
 
-        M3UParser.saxUrl(apiUrl, () -> {
-            initVideoView();
-            initChannelGroupView();
-            initLiveChannelView();
-            initSettingGroupView();
-            initSettingItemView();
-            initLiveChannelList();
-            initLiveSettingGroupList();
-
-        }, () -> jumpActivity(SettingActivity.class));
-
+        loadLiveChannels(Hawk.get(HawkConfig.API_URL, ""));
     }
 
     @Override
@@ -194,6 +186,10 @@ public class LivePlayActivity extends BaseActivity {
 
         }
 
+        if(!currentApiUrl.equals(apiUrl)){
+            loadLiveChannels(apiUrl);
+        }
+
 
         mHandler.postDelayed(() -> {
             if ((apiUrl.isEmpty() || M3UParser.liveChannelGroupList.isEmpty()) && !dialog.isShowing()) {
@@ -207,16 +203,7 @@ public class LivePlayActivity extends BaseActivity {
                 public void left() {
                     dialog.hide();
 
-                    M3UParser.saxUrl(apiUrl, () -> {
-                        initVideoView();
-                        initChannelGroupView();
-                        initLiveChannelView();
-                        initSettingGroupView();
-                        initSettingItemView();
-                        initLiveChannelList();
-                        initLiveSettingGroupList();
-
-                    }, () -> jumpActivity(SettingActivity.class));
+                    loadLiveChannels(apiUrl);
                 }
 
                 @Override
@@ -235,6 +222,22 @@ public class LivePlayActivity extends BaseActivity {
 
 
 
+    }
+
+    private void loadLiveChannels(String apiUrl) {
+
+        Log.d("log debug:","load");
+        currentApiUrl=apiUrl;
+        M3UParser.saxUrl(apiUrl, () -> {
+            initVideoView();
+            initChannelGroupView();
+            initLiveChannelView();
+            initSettingGroupView();
+            initSettingItemView();
+            initLiveChannelList();
+            initLiveSettingGroupList();
+
+        }, () -> jumpActivity(SettingActivity.class));
     }
 
 

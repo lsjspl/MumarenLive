@@ -1,7 +1,6 @@
 package com.github.tvbox.osc.util.m3u;
 
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.github.tvbox.osc.base.App;
@@ -10,6 +9,7 @@ import com.github.tvbox.osc.bean.LiveChannelGroup;
 import com.github.tvbox.osc.bean.LiveChannelItem;
 import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 public class M3UParser {
 
     public static List<IJKCode> ijkCodes;
-
 
     private static String defaultIjkStr = " [\n" +
 
@@ -199,7 +198,66 @@ public class M3UParser {
 
             "      ]";
 
+    public static List<LiveChannelGroup> liveChannelGroupList = new ArrayList<>();
 
+    public static void saxUrl(String url, CallBack success, CallBack failed) {
+
+        if (url.equals("")) {
+            failed.run();
+            return;
+        }
+
+        if (url.startsWith("clan://")) {
+            url = clanToAddress(url);
+        }
+        Log.d("load:"+url);
+
+        Toast.makeText(App.getInstance(), "正在加载。。。。", Toast.LENGTH_SHORT).show();
+        OkGo.<String>get(url).execute(new AbsCallback<String>() {
+
+            @Override
+            public void onError(Response<String> response) {
+                super.onError(response);
+                Toast.makeText(App.getInstance(), "加载失败。。。", Toast.LENGTH_SHORT).show();
+                failed.run();
+            }
+
+            @Override
+            public String convertResponse(okhttp3.Response response) throws Throwable {
+                return response.body().string();
+            }
+
+            @Override
+            public void onSuccess(com.lzy.okgo.model.Response<String> response) {
+
+
+                try {
+                    liveChannelGroupList.clear();
+                    String body = response.body();
+
+                    Log.i(body);
+
+                    //m3u
+                    if (body.contains("#EXTM3U")) {
+                        parseM3uContent(parseM3UContent(body));
+                    } else if (body.contains("#genre#")) {
+                        parseNormal(body);
+                    } else {
+                        throw new Exception();
+                    }
+                    //普通模式
+                    Toast.makeText(App.getInstance(), "加载成功。。。", Toast.LENGTH_SHORT).show();
+                    success.run();
+                } catch (Exception e) {
+                    Log.e("加载失败",e);
+                    Toast.makeText(App.getInstance(), "加载失败。。。", Toast.LENGTH_SHORT).show();
+                    liveChannelGroupList.clear();
+                    failed.run();
+                }
+            }
+
+        });
+    }
     static JsonArray defaultIjk = new Gson().fromJson(defaultIjkStr, JsonArray.class);
 
     static {
@@ -254,58 +312,7 @@ public class M3UParser {
         }
     }
 
-    public static List<LiveChannelGroup> liveChannelGroupList = new ArrayList<>();
 
-    public static void saxUrl(String url, CallBack success,CallBack failed) {
-
-        if(url.equals("")){
-            failed.run();
-            return;
-        }
-
-        Toast.makeText(App.getInstance(), "正在加载。。。。", Toast.LENGTH_SHORT).show();
-        OkGo.<String>get(url).execute(new AbsCallback<String>() {
-
-            @Override
-            public void onError(Response<String> response) {
-                super.onError(response);
-                Toast.makeText(App.getInstance(), "加载失败。。。", Toast.LENGTH_SHORT).show();
-                failed.run();
-            }
-
-            @Override
-            public String convertResponse(okhttp3.Response response) throws Throwable {
-                return response.body().string();
-            }
-
-            @Override
-            public void onSuccess(com.lzy.okgo.model.Response<String> response) {
-
-
-                try {
-                    liveChannelGroupList.clear();
-                    String body = response.body();
-
-                    //m3u
-                    if (url.toLowerCase().endsWith(".m3u")) {
-                        parseM3uContent(parseM3UContent(body));
-
-                    } else {
-                        parseNormal(body);
-                    }
-                    //普通模式
-                    Toast.makeText(App.getInstance(), "加载成功。。。", Toast.LENGTH_SHORT).show();
-                    success.run();
-                } catch (Exception e) {
-                    Toast.makeText(App.getInstance(), "加载失败。。。", Toast.LENGTH_SHORT).show();
-                    liveChannelGroupList.clear();
-                    failed.run();
-                    Log.i("1", "", e);
-                }
-            }
-
-        });
-    }
 
     private static void parseM3uContent(ArrayList<ChannelInfo> channelInfos) {
         liveChannelGroupList.clear();
@@ -333,7 +340,7 @@ public class M3UParser {
             }
 
 
-            String name = channelInfo.getTvgName()==null?channelInfo.getTitle():channelInfo.getTvgName();
+            String name = channelInfo.getTvgName() == null ? channelInfo.getTitle() : channelInfo.getTvgName();
             String url = channelInfo.getUrl();
 
             if (liveMap.containsKey(name.trim().toLowerCase())) {
@@ -356,6 +363,8 @@ public class M3UParser {
         }
 
     }
+
+    static String[] splitFixs = new String[]{",", "，", "http:", "https:", "rtmp:"};
 
     private static void parseNormal(String body) {
         liveChannelGroupList.clear();
@@ -382,8 +391,24 @@ public class M3UParser {
                 tvs.setGroupPassword("");
             } else {
 
-                String name = item.split(",")[0];
-                String url = item.split(",")[1];
+                String split = "";
+
+                int appendIndex = 0;
+
+                for (String tmp : splitFixs) {
+                    appendIndex++;
+                    if (item.contains(tmp)) {
+                        split = tmp;
+                        break;
+                    }
+                }
+
+                if (split.isEmpty()) {
+                    break;
+                }
+
+                String name = item.split(split)[0];
+                String url = appendIndex > 1 ? item.split(split)[1] : split + item.split(split)[1];
 
                 if (liveMap.containsKey(name.trim().toLowerCase())) {
                     lives = liveMap.get(name.trim().toLowerCase());
@@ -462,7 +487,7 @@ public class M3UParser {
         public void run();
     }
 
-    String clanToAddress(String lanLink) {
+    static String clanToAddress(String lanLink) {
         if (lanLink.startsWith("clan://localhost/")) {
             return lanLink.replace("clan://localhost/", ControlManager.get().getAddress(true) + "file/");
         } else {

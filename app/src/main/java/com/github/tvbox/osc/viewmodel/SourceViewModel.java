@@ -18,7 +18,7 @@ import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.HawkConfig;
-import com.github.tvbox.osc.util.LOG;
+import com.github.tvbox.osc.util.Log;
 import com.github.tvbox.osc.util.thunder.Thunder;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -633,7 +633,7 @@ public class SourceViewModel extends ViewModel {
                         @Override
                         public void status(int code, String info) {
                             if (code >= 0) {
-                                LOG.i(info);
+                                Log.i(info);
                             } else {
                                 urlInfo.beanList.get(0).name = info;
                                 detailResult.postValue(data);

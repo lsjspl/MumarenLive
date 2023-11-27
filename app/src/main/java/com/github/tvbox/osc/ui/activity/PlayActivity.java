@@ -49,7 +49,7 @@ import com.github.tvbox.osc.player.thirdparty.ReexPlayer;
 import com.github.tvbox.osc.util.AdBlocker;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.HawkConfig;
-import com.github.tvbox.osc.util.LOG;
+import com.github.tvbox.osc.util.Log;
 import com.github.tvbox.osc.util.MD5;
 import com.github.tvbox.osc.util.PlayerHelper;
 import com.github.tvbox.osc.util.XWalkUtils;
@@ -989,7 +989,7 @@ public class PlayActivity extends BaseActivity {
             if (url.endsWith("/favicon.ico")) {
                 return new WebResourceResponse("image/png", null, null);
             }
-            LOG.i("shouldInterceptRequest url:" + url);
+            Log.i("shouldInterceptRequest url:" + url);
             boolean ad;
             if (!loadedUrls.containsKey(url)) {
                 ad = AdBlocker.isAd(url);
@@ -1161,7 +1161,7 @@ public class PlayActivity extends BaseActivity {
             if (url.endsWith("/favicon.ico")) {
                 return createXWalkWebResourceResponse("image/png", null, null);
             }
-            LOG.i("shouldInterceptLoadRequest url:" + url);
+            Log.i("shouldInterceptLoadRequest url:" + url);
             boolean ad;
             if (!loadedUrls.containsKey(url)) {
                 ad = AdBlocker.isAd(url);
