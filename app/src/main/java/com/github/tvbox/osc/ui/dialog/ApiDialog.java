@@ -16,7 +16,6 @@ import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 import com.github.tvbox.osc.util.HawkConfig;
-import com.github.tvbox.osc.util.m3u.M3UParser;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
@@ -42,10 +41,14 @@ public class ApiDialog extends BaseDialog {
     private TextView tvAddress;
     private EditText inputApi;
 
+    private EditText channelConfigApi;
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refresh(RefreshEvent event) {
         if (event.type == RefreshEvent.TYPE_API_URL_CHANGE) {
             inputApi.setText((String) event.obj);
+        } else if (event.type == RefreshEvent.TYPE_CHANNEL_CONFIG_CHANGE) {
+            channelConfigApi.setText((String) event.obj);
         }
     }
 
@@ -57,60 +60,91 @@ public class ApiDialog extends BaseDialog {
         tvAddress = findViewById(R.id.tvAddress);
         inputApi = findViewById(R.id.input);
         inputApi.setText(Hawk.get(HawkConfig.API_URL, ""));
-        findViewById(R.id.inputSubmit).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newApi = inputApi.getText().toString().trim();
-                M3UParser.saxUrl(newApi, () -> {
 
-                    //解析正常才进行保存之类的操作
-                    if (!newApi.isEmpty() && (newApi.startsWith("http") || newApi.startsWith("clan"))) {
-                        ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
-                        if (!history.contains(newApi))
-                            history.add(0, newApi);
-                        if (history.size() > 10)
-                            history.remove(10);
-                        Hawk.put(HawkConfig.API_HISTORY, history);
-
-                        listener.onchange(newApi);
-                        dismiss();
-                    }
-                },() -> {
+        channelConfigApi = findViewById(R.id.channelConfigApi);
+        channelConfigApi.setText(Hawk.get(HawkConfig.CHANNEL_CONFIG_API, ""));
 
 
-                });
+        findViewById(R.id.channelConfigApiSubmit).setOnClickListener(v -> {
 
-
+            String newApi = inputApi.getText().toString().trim();
+            Hawk.put(HawkConfig.API_URL, newApi);
+            if (!newApi.isEmpty() && (newApi.startsWith("http") || newApi.startsWith("clan"))) {
+                ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<>());
+                if (!history.contains(newApi))
+                    history.add(0, newApi);
+                if (history.size() > 10)
+                    history.remove(10);
+                Hawk.put(HawkConfig.API_HISTORY, history);
             }
-        });
-        findViewById(R.id.apiHistory).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
-                if (history.isEmpty())
-                    return;
-                String current = Hawk.get(HawkConfig.API_URL, "");
-                int idx = 0;
-                if (history.contains(current))
-                    idx = history.indexOf(current);
-                ApiHistoryDialog dialog = new ApiHistoryDialog(getContext());
-                dialog.setTip("历史配置列表");
-                dialog.setAdapter(new ApiHistoryDialogAdapter.SelectDialogInterface() {
-                    @Override
-                    public void click(String value) {
-                        inputApi.setText(value);
-                        listener.onchange(value);
-                        dialog.dismiss();
-                    }
 
-                    @Override
-                    public void del(String value, ArrayList<String> data) {
-                        Hawk.put(HawkConfig.API_HISTORY, data);
-                    }
-                }, history, idx);
-                dialog.show();
+            String layoutApi = channelConfigApi.getText().toString().trim();
+            Hawk.put(HawkConfig.CHANNEL_CONFIG_API, layoutApi);
+            if (!layoutApi.isEmpty() && (layoutApi.startsWith("http") || layoutApi.startsWith("clan"))) {
+                ArrayList<String> history = Hawk.get(HawkConfig.CHANNELCONFIGAPIHISTORY, new ArrayList<>());
+                if (!history.contains(layoutApi))
+                    history.add(0, layoutApi);
+                if (history.size() > 10)
+                    history.remove(10);
+                Hawk.put(HawkConfig.CHANNELCONFIGAPIHISTORY, history);
             }
+
+            listener.onchange(newApi);
         });
+
+
+        findViewById(R.id.apiHistory).setOnClickListener(v -> {
+            ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
+            if (history.isEmpty())
+                return;
+            String current = Hawk.get(HawkConfig.API_URL, "");
+            int idx = 0;
+            if (history.contains(current))
+                idx = history.indexOf(current);
+            ApiHistoryDialog dialog = new ApiHistoryDialog(getContext());
+            dialog.setTip("历史配置列表");
+            dialog.setAdapter(new ApiHistoryDialogAdapter.SelectDialogInterface() {
+                @Override
+                public void click(String value) {
+                    inputApi.setText(value);
+                    listener.onchange(value);
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void del(String value, ArrayList<String> data) {
+                    Hawk.put(HawkConfig.API_HISTORY, data);
+                }
+            }, history, idx);
+            dialog.show();
+        });
+
+        findViewById(R.id.channelConfigApiHistory).setOnClickListener(v -> {
+            ArrayList<String> history = Hawk.get(HawkConfig.CHANNELCONFIGAPIHISTORY, new ArrayList<>());
+            if (history.isEmpty())
+                return;
+            String current = Hawk.get(HawkConfig.CHANNEL_CONFIG_API, "");
+            int idx = 0;
+            if (history.contains(current))
+                idx = history.indexOf(current);
+            ApiHistoryDialog dialog = new ApiHistoryDialog(getContext());
+            dialog.setTip("历史配置列表");
+            dialog.setAdapter(new ApiHistoryDialogAdapter.SelectDialogInterface() {
+                @Override
+                public void click(String value) {
+                    channelConfigApi.setText(value);
+                    listener.onchange(value);
+                }
+
+                @Override
+                public void del(String value, ArrayList<String> data) {
+                    Hawk.put(HawkConfig.CHANNELCONFIGAPIHISTORY, data);
+                }
+            }, history, idx);
+            dialog.show();
+        });
+
+
         findViewById(R.id.storagePermission).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

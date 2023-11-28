@@ -59,6 +59,8 @@
 						</div>
 					</div>
 				</div>
+
+
 				<div id="panel3" role="tabpanel" aria-labelledby="tab3" class="weui-tab__panel" style="display: none;">
 					<div class="weui-form" style="min-height: 0;">
 						<div class="weui-form__text-area">
@@ -77,9 +79,28 @@
 										</div>
 									</div>
 								</div>
+
+								<div class="weui-cells">
+									<div class="weui-cell weui-cell_active weui-cell_vcode weui-cell_wrap">
+										<div class="weui-cell__bd weui-flex">
+											<input id="tvChannelConfig"
+													class="weui-input weui-cell__control weui-cell__control_flex"
+													type="text" value="" placeholder="请输入布局配置文件地址" />
+											<button onclick="tvChannelConfig(); return false;"
+													class="weui-cell__control weui-btn weui-btn_default weui-vcode-btn">确定</button>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
+
+
+
+
+
+
+
 					<div class="weui-form" style="padding-top: 50px; min-height: 0;">
 						<div class="weui-form__text-area">
 							<h2 class="weui-form__title">本地文件</h2>
@@ -102,6 +123,9 @@
 						</div>
 					</div>
 				</div>
+
+
+
 				<div role="tablist" class="weui-tabbar">
 					<div id="tab1" role="tab" aria-labelledby="t1_title" aria-selected="true" aria-controls="panel1"
 						class="weui-tabbar__item weui-bar__item_on">
@@ -156,7 +180,10 @@
 							<div class="weui-cell weui-cell_active weui-cell_vcode weui-cell_wrap">
 								<div class="weui-cell__hd"><label class="weui-label">本机地址</label></div>
 								<div class="weui-cell__bd weui-flex"><button onclick="fileToApi(1); return false;"
-										class="weui-cell__control weui-btn weui-btn_default weui-vcode-btn">使用</button>
+										class="weui-cell__control weui-btn weui-btn_default weui-vcode-btn">配置源</button>
+								</div>
+								<div class="weui-cell__bd weui-flex"><button onclick="fileToChannelApi(1); return false;"
+										class="weui-cell__control weui-btn weui-btn_default weui-vcode-btn">配置布局</button>
 								</div>
 							</div>
 							<div class="weui-cell weui-cell_active weui-cell_vcode weui-cell_wrap">
@@ -169,7 +196,10 @@
 							<div class="weui-cell weui-cell_active weui-cell_vcode weui-cell_wrap">
 								<div class="weui-cell__hd"><label class="weui-label">局域网地址</label></div>
 								<div class="weui-cell__bd weui-flex"><button onclick="fileToApi(2); return false;"
-										class="weui-cell__control weui-btn weui-btn_default weui-vcode-btn">使用</button>
+										class="weui-cell__control weui-btn weui-btn_default weui-vcode-btn">配置源</button>
+								</div>
+								<div class="weui-cell__bd weui-flex"><button onclick="fileToChannelApi(2); return false;"
+										class="weui-cell__control weui-btn weui-btn_default weui-vcode-btn">配置布局</button>
 								</div>
 							</div>
 							<div class="weui-cell weui-cell_active weui-cell_vcode weui-cell_wrap">

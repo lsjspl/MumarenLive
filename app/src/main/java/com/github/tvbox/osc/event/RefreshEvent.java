@@ -16,6 +16,8 @@ public class RefreshEvent {
     public static final int TYPE_QUICK_SEARCH_RESULT = 7;
     public static final int TYPE_API_URL_CHANGE = 8;
     public static final int TYPE_PUSH_URL = 9;
+    public static final int TYPE_CHANNEL_CONFIG_CHANGE = 10;
+
     public int type;
     public Object obj;
 

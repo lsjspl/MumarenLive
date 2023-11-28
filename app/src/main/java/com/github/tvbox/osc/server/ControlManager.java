@@ -77,6 +77,11 @@ public class ControlManager {
                 }
 
                 @Override
+                public void onChannelConfigReceived(String url) {
+                    EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_CHANNEL_CONFIG_CHANGE, url));
+                }
+
+                @Override
                 public void onPushReceived(String url) {
                     EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_PUSH_URL, url));
                 }

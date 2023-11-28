@@ -15,5 +15,7 @@ public interface DataReceiver {
 
     void onApiReceived(String url);
 
+    void onChannelConfigReceived(String url);
+
     void onPushReceived(String url);
 }

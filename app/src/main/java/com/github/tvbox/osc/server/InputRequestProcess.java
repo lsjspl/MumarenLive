@@ -45,6 +45,10 @@ public class InputRequestProcess implements RequestProcess {
                             mDataReceiver.onApiReceived(params.get("url").trim());
                             break;
                         }
+                        case "tvChannelConfig": {
+                            mDataReceiver.onChannelConfigReceived(params.get("url").trim());
+                            break;
+                        }
                         case "push": {
                             // 暂未实现
                             mDataReceiver.onPushReceived(params.get("url").trim());

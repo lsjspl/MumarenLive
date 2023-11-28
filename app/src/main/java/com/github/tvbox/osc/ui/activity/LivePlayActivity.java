@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -40,6 +39,7 @@ import com.github.tvbox.osc.ui.dialog.TipDialog;
 import com.github.tvbox.osc.ui.tv.widget.ViewObj;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.Log;
 import com.github.tvbox.osc.util.m3u.M3UParser;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
@@ -52,7 +52,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Function;
 
 import xyz.doikki.videoplayer.player.VideoView;
 
@@ -97,7 +96,7 @@ public class LivePlayActivity extends BaseActivity {
     private LiveChannelItem currentLiveChannelItem = null;
     private LivePlayerManager livePlayerManager = new LivePlayerManager();
     private ArrayList<Integer> channelGroupPasswordConfirmed = new ArrayList<>();
-
+    String currentLayoutAPi="";
     String currentApiUrl = "";
 
     @Override
@@ -129,8 +128,12 @@ public class LivePlayActivity extends BaseActivity {
         tvNumView = findViewById(R.id.tvNumView);
 
         ControlManager.get().startServer();
+        buildDialog();
+        loadLiveChannels(Hawk.get(HawkConfig.API_URL, ""), () -> {
+            dialog.show();
+        });
 
-        loadLiveChannels(Hawk.get(HawkConfig.API_URL, ""),null);
+        Log.d("init");
     }
 
     @Override
@@ -188,26 +191,36 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     TipDialog dialog = null;
+    boolean isInit = false;
 
     @Override
-    protected void onResume() {
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "");
-        super.onResume();
+    protected void onRestart() {
+        Log.d("onRestart");
+        super.onRestart();
+
         if (mVideoView != null) {
             mVideoView.resume();
         }
 
-        if (!currentApiUrl.equals(apiUrl)) {
-            loadLiveChannels(apiUrl,() -> dialog.show());
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "");
+
+        if (!currentApiUrl.equals(apiUrl)||!currentLayoutAPi.equals( Hawk.get(HawkConfig.CHANNEL_CONFIG_API, ""))) {
+            currentChannelGroupIndex = 0;
+            currentLiveChannelIndex = -1;
+            currentLiveChangeSourceTimes = 0;
+
+            loadLiveChannels(apiUrl, () -> dialog.show());
+
+        } else if (M3UParser.liveChannelGroupList.isEmpty()) {
+            dialog.show();
         }
+        isInit = true;
 
-        mHandler.postDelayed(() -> {
-            if ((apiUrl.isEmpty() || M3UParser.liveChannelGroupList.isEmpty()) && !dialog.isShowing()) {
-                dialog.show();
-            }
-        }, 3000);
+    }
 
+    private void buildDialog() {
         if (dialog == null) {
+            String apiUrl = Hawk.get(HawkConfig.API_URL, "");
             dialog = new TipDialog(LivePlayActivity.this, "没有加载到数据，请选择", "重试", "设置", new TipDialog.OnListener() {
                 @Override
                 public void left() {
@@ -231,7 +244,6 @@ public class LivePlayActivity extends BaseActivity {
 
     private void loadLiveChannels(String apiUrl, M3UParser.CallBack failed) {
 
-        Log.d("log debug:", "load");
         currentApiUrl = apiUrl;
         M3UParser.saxUrl(apiUrl, () -> {
             initVideoView();
@@ -241,8 +253,7 @@ public class LivePlayActivity extends BaseActivity {
             initSettingItemView();
             initLiveChannelList();
             initLiveSettingGroupList();
-
-        }, failed == null ? () -> jumpActivity(SettingActivity.class):failed);
+        }, failed == null ? () -> jumpActivity(SettingActivity.class) : failed);
     }
 
 
@@ -389,7 +400,7 @@ public class LivePlayActivity extends BaseActivity {
     };
 
     private boolean playChannel(int channelGroupIndex, int liveChannelIndex, boolean changeSource) {
-        if ((channelGroupIndex == currentChannelGroupIndex && liveChannelIndex == currentLiveChannelIndex && !changeSource)
+        if ((channelGroupIndex == currentChannelGroupIndex  && liveChannelIndex == currentLiveChannelIndex && !changeSource)
                 || (changeSource && currentLiveChannelItem.getSourceIndex() == 0)) {
             showChannelInfo();
             return true;
@@ -558,17 +569,14 @@ public class LivePlayActivity extends BaseActivity {
         mVideoView.setProgressManager(null);
     }
 
-    private Runnable mConnectTimeoutChangeSourceRun = new Runnable() {
-        @Override
-        public void run() {
-            currentLiveChangeSourceTimes++;
-            if (currentLiveChannelItem.getSourceIndex() == currentLiveChangeSourceTimes) {
-                currentLiveChangeSourceTimes = 0;
-                Integer[] groupChannelIndex = getNextChannel(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false) ? -1 : 1);
-                playChannel(groupChannelIndex[0], groupChannelIndex[1], false);
-            } else {
-                playNextSource();
-            }
+    private Runnable mConnectTimeoutChangeSourceRun = () -> {
+        currentLiveChangeSourceTimes++;
+        if (currentLiveChannelItem.getSourceIndex() == currentLiveChangeSourceTimes) {
+            currentLiveChangeSourceTimes = 0;
+            Integer[] groupChannelIndex = getNextChannel(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false) ? -1 : 1);
+            playChannel(groupChannelIndex[0], groupChannelIndex[1], false);
+        } else {
+            playNextSource();
         }
     };
 
@@ -831,7 +839,11 @@ public class LivePlayActivity extends BaseActivity {
             case 3://超时换源
                 Hawk.put(HawkConfig.LIVE_CONNECT_TIMEOUT, position);
                 break;
-            case 4://超时换源
+            case 4://
+                Hawk.put(HawkConfig.CHANNEL_GROUP_TYPE, position);
+                jumpActivity(this.getClass());
+                break;
+            case 5:
                 boolean select = false;
                 switch (position) {
                     case 0:
@@ -855,7 +867,7 @@ public class LivePlayActivity extends BaseActivity {
                 }
                 liveSettingItemAdapter.selectItem(position, select, false);
                 break;
-            case 5://系统设置
+            case 6://系统设置
                 jumpActivity(SettingActivity.class);
                 break;
         }
@@ -914,7 +926,7 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void initLiveSettingGroupList() {
-        ArrayList<String> groupNames = new ArrayList<>(Arrays.asList("线路选择", "画面比例", "播放解码", "超时换源", "偏好设置", "系统设置"));
+        ArrayList<String> groupNames = new ArrayList<>(Arrays.asList("线路选择", "画面比例", "播放解码", "超时换源","频道分组", "偏好设置", "系统设置"));
         ArrayList<ArrayList<String>> itemsArrayList = new ArrayList<>();
         ArrayList<String> sourceItems = new ArrayList<>();
         ArrayList<String> scaleItems = new ArrayList<>(Arrays.asList("默认", "16:9", "4:3", "填充", "原始", "裁剪"));
@@ -922,12 +934,15 @@ public class LivePlayActivity extends BaseActivity {
         ArrayList<String> timeoutItems = new ArrayList<>(Arrays.asList("5s", "10s", "15s", "20s", "25s", "30s"));
         ArrayList<String> personalSettingItems = new ArrayList<>(Arrays.asList("显示时间", "显示网速", "换台反转", "跨选分类"));
         ArrayList<String> settingItems = new ArrayList<>(Arrays.asList("设置"));
+        ArrayList<String> channelGroupItems = new ArrayList<>(Arrays.asList("源默认","自定义"));
         itemsArrayList.add(sourceItems);
         itemsArrayList.add(scaleItems);
         itemsArrayList.add(playerDecoderItems);
         itemsArrayList.add(timeoutItems);
+        itemsArrayList.add(channelGroupItems);
         itemsArrayList.add(personalSettingItems);
         itemsArrayList.add(settingItems);
+
 
         liveSettingGroupList.clear();
         for (int i = 0; i < groupNames.size(); i++) {
@@ -945,10 +960,11 @@ public class LivePlayActivity extends BaseActivity {
             liveSettingGroupList.add(liveSettingGroup);
         }
         liveSettingGroupList.get(3).getLiveSettingItems().get(Hawk.get(HawkConfig.LIVE_CONNECT_TIMEOUT, 1)).setItemSelected(true);
-        liveSettingGroupList.get(4).getLiveSettingItems().get(0).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_TIME, false));
-        liveSettingGroupList.get(4).getLiveSettingItems().get(1).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_NET_SPEED, false));
-        liveSettingGroupList.get(4).getLiveSettingItems().get(2).setItemSelected(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false));
-        liveSettingGroupList.get(4).getLiveSettingItems().get(3).setItemSelected(Hawk.get(HawkConfig.LIVE_CROSS_GROUP, false));
+//        liveSettingGroupList.get(4).getLiveSettingItems().get(Hawk.get(HawkConfig.CHANNEL_GROUP_TYPE, 1)).setItemSelected(true);
+        liveSettingGroupList.get(5).getLiveSettingItems().get(0).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_TIME, false));
+        liveSettingGroupList.get(5).getLiveSettingItems().get(1).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_NET_SPEED, false));
+        liveSettingGroupList.get(5).getLiveSettingItems().get(2).setItemSelected(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false));
+        liveSettingGroupList.get(5).getLiveSettingItems().get(3).setItemSelected(Hawk.get(HawkConfig.LIVE_CROSS_GROUP, false));
     }
 
     private void loadCurrentSourceList() {
@@ -1112,7 +1128,7 @@ public class LivePlayActivity extends BaseActivity {
 
     private int getFirstNoPasswordChannelGroup() {
         for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
-            if (liveChannelGroup.getGroupPassword().isEmpty())
+            if (liveChannelGroup.getGroupPassword().isEmpty()&&!liveChannelGroup.getLiveChannels().isEmpty())
                 return liveChannelGroup.getGroupIndex();
         }
         return -1;

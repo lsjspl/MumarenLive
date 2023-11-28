@@ -6,6 +6,10 @@ function api() {
     doAction('api', { url: $('#diy_api_url').val() });
 }
 
+function tvChannelConfig() {
+            doAction('tvChannelConfig', { url: $('#tvChannelConfig').val() });
+}
+
 function push() {
     doAction('push', { url: $('#push_url').val() });
 }
@@ -86,6 +90,14 @@ function fileToApi(type) {
         doAction('api', { url: "clan://localhost/" + current_file });
     } else {
         doAction('api', { url: current_remote + current_file });
+    }
+}
+
+function fileToChannelApi(type) {
+    if (type === 1) {
+        doAction('tvChannelConfig', { url: "clan://localhost/" + current_file });
+    } else {
+        doAction('tvChannelConfig', { url: current_remote + current_file });
     }
 }
 

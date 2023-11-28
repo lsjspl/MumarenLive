@@ -3,6 +3,7 @@ package com.github.tvbox.osc.util.m3u;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.bean.IJKCode;
 import com.github.tvbox.osc.bean.LiveChannelGroup;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -200,6 +202,30 @@ public class M3UParser {
 
     public static List<LiveChannelGroup> liveChannelGroupList = new ArrayList<>();
 
+    public static List<IJKCode> getIjkCodes() {
+        return ijkCodes;
+    }
+
+    public static void setIjkCodes(List<IJKCode> ijkCodes) {
+        M3UParser.ijkCodes = ijkCodes;
+    }
+
+    public static List<LiveChannelGroup> getLiveChannelGroupList() {
+        return liveChannelGroupList;
+    }
+
+    public static void setLiveChannelGroupList(List<LiveChannelGroup> liveChannelGroupList) {
+        M3UParser.liveChannelGroupList = liveChannelGroupList;
+    }
+
+    public static JsonArray getDefaultIjk() {
+        return defaultIjk;
+    }
+
+    public static void setDefaultIjk(JsonArray defaultIjk) {
+        M3UParser.defaultIjk = defaultIjk;
+    }
+
     public static void saxUrl(String url, CallBack success, CallBack failed) {
 
         if (url.equals("")) {
@@ -235,8 +261,6 @@ public class M3UParser {
                     liveChannelGroupList.clear();
                     String body = response.body();
 
-                    Log.i(body);
-
                     //m3u
                     if (body.contains("#EXTM3U")) {
                         parseM3uContent(parseM3UContent(body));
@@ -246,8 +270,15 @@ public class M3UParser {
                         throw new Exception();
                     }
                     //普通模式
-                    Toast.makeText(App.getInstance(), "加载成功。。。", Toast.LENGTH_SHORT).show();
-                    success.run();
+                    Toast.makeText(App.getInstance(), "加载直播源成功。。。", Toast.LENGTH_SHORT).show();
+
+                    Log.d(Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 0) + "");
+                    if (Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 0) == 1) {
+                        ChannelLayout.channelLayoutHandler(success, failed);
+                    } else {
+                        success.run();
+                    }
+
                 } catch (Exception e) {
                     Log.e("加载失败", e);
                     Toast.makeText(App.getInstance(), "加载失败。。。", Toast.LENGTH_SHORT).show();
@@ -257,6 +288,10 @@ public class M3UParser {
             }
 
         });
+    }
+
+    public static String toSimplifiedChinese(String traditionalChinese) {
+        return ZhConverterUtil.convertToSimple(traditionalChinese);
     }
 
     static JsonArray defaultIjk = new Gson().fromJson(defaultIjkStr, JsonArray.class);
@@ -269,22 +304,20 @@ public class M3UParser {
         ArrayList<ChannelInfo> channels = new ArrayList<>();
         String[] lines = m3uContent.split("\n");
 
-        ChannelInfo currentChannel = null;
+        ChannelInfo channel = null;
 
         for (String line : lines) {
             line = line.trim();
 
-            if (line.isEmpty()) {
-                continue;
-            }
-
-            if (line.startsWith("#EXTINF:")) {
-                currentChannel = new ChannelInfo();
-                extractInfoFromExtInf(line, currentChannel);
-            } else if (currentChannel != null) {
-                currentChannel.setUrl(line);
-                channels.add(currentChannel);
-                currentChannel = null;
+            if (line.isEmpty() || (line.startsWith("#") && !line.startsWith("#EXTINF:"))) {
+                //
+            } else if (line.startsWith("#EXTINF:")) {
+                channel = new ChannelInfo();
+                extractInfoFromExtInf(line, channel);
+            } else if (channel != null) {
+                channel.setUrl(line);
+                channels.add(channel);
+                channel = null;
             }
         }
 
@@ -322,26 +355,29 @@ public class M3UParser {
 
         Map<String, LiveChannelItem> liveMap = new HashMap<>();
         Map<String, LiveChannelGroup> groupMap = new HashMap<>();
-        for (ChannelInfo channelInfo : channelInfos) {
-            String groupName = channelInfo.getGroupTitle();
 
-            if (groupMap.containsKey(channelInfo.getGroupTitle())) {
+        int index = 0;
+        for (ChannelInfo channelInfo : channelInfos) {
+            String groupName = toSimplifiedChinese(channelInfo.getGroupTitle());
+            String groupTitle = toSimplifiedChinese(channelInfo.getGroupTitle());
+            String name = toSimplifiedChinese(channelInfo.getTvgName() == null ? channelInfo.getTitle() : channelInfo.getTvgName());
+            String url = channelInfo.getUrl();
+            String tvLogo = channelInfo.getTvgLogo();
+
+            if (groupMap.containsKey(groupTitle)) {
                 group = groupMap.get(groupName);
                 channels = group.getLiveChannels();
             } else {
                 group = new LiveChannelGroup();
                 liveChannelGroupList.add(group);
                 channels = new ArrayList<>();
-                group.setGroupName(channelInfo.getGroupTitle());
+                group.setGroupName(groupTitle);
                 group.setGroupIndex(liveChannelGroupList.size() - 1);
                 group.setLiveChannels(channels);
                 group.setGroupPassword("");
                 groupMap.put(groupName, group);
             }
 
-
-            String name = channelInfo.getTvgName() == null ? channelInfo.getTitle() : channelInfo.getTvgName();
-            String url = channelInfo.getUrl();
 
             if (liveMap.containsKey(name.trim().toLowerCase())) {
                 channel = liveMap.get(name.trim().toLowerCase());
@@ -352,9 +388,9 @@ public class M3UParser {
                 liveMap.put(name.trim().toLowerCase(), channel);
                 channels.add(channel);
                 channel.setChannelIndex(channels.size());
-                channel.setChannelNum(channels.size());
+                channel.setChannelNum(index++);
                 channel.setChannelName(name);
-                channel.setLogoUrl(channelInfo.getTvgLogo());
+                channel.setLogoUrl(tvLogo);
                 channel.setChannelUrls(new ArrayList<>());
                 channel.getChannelUrls().add(url);
                 channel.setChannelSourceNames(new ArrayList<>());
@@ -369,7 +405,7 @@ public class M3UParser {
 
     private static void parseNormal(String body) {
         liveChannelGroupList.clear();
-        String[] all = body.split("\\n");
+        String[] all = body.split("\\r\\n");
         LiveChannelGroup tvs;
         ArrayList<LiveChannelItem> channels = new ArrayList<>();
 //                liveChannelGroupList.addAll();
@@ -378,15 +414,17 @@ public class M3UParser {
 
         Map<String, LiveChannelItem> liveMap = new HashMap<>();
 
+        int index = 0;
+
         for (String item : all) {
 
-            if (item.trim().toLowerCase().isEmpty()) {
+            if (item.trim().toLowerCase().isEmpty() || item.trim().startsWith("#")) {
 
             } else if (item.trim().toLowerCase().contains("#genre#")) {
                 tvs = new LiveChannelGroup();
                 channels = new ArrayList<>();
                 liveChannelGroupList.add(tvs);
-                tvs.setGroupName(item.split(",")[0]);
+                tvs.setGroupName(toSimplifiedChinese(item.split(",")[0]));
                 tvs.setGroupIndex(liveChannelGroupList.size() - 1);
                 tvs.setLiveChannels(channels);
                 tvs.setGroupPassword("");
@@ -408,19 +446,19 @@ public class M3UParser {
                     break;
                 }
 
-                String name = item.split(split)[0];
+                String name = toSimplifiedChinese(item.split(split)[0].trim().toLowerCase());
                 String url = appendIndex > 1 ? item.split(split)[1] : split + item.split(split)[1];
 
-                if (liveMap.containsKey(name.trim().toLowerCase())) {
-                    lives = liveMap.get(name.trim().toLowerCase());
+                if (liveMap.containsKey(name)) {
+                    lives = liveMap.get(name);
                     lives.getChannelUrls().add(url);
                     lives.getChannelSourceNames().add("源" + lives.getChannelUrls().size());
                 } else {
                     lives = new LiveChannelItem();
-                    liveMap.put(name.trim().toLowerCase(), lives);
+                    liveMap.put(name, lives);
                     channels.add(lives);
-                    lives.setChannelIndex(channels.size());
-                    lives.setChannelNum(channels.size());
+                    lives.setChannelIndex(channels.size() - 1);
+                    lives.setChannelNum(index++);
                     lives.setChannelName(name);
                     lives.setChannelUrls(new ArrayList<>());
                     lives.getChannelUrls().add(url);
