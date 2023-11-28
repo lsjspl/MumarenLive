@@ -26,7 +26,7 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
-import com.github.tvbox.osc.util.m3u.M3UParser;
+import com.github.tvbox.osc.util.m3u.ChannelHandler;
 import com.orhanobut.hawk.Hawk;
 
 import org.greenrobot.eventbus.EventBus;
@@ -235,7 +235,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         findViewById(R.id.llMediaCodec).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<IJKCode> ijkCodes = M3UParser.ijkCodes;
+                List<IJKCode> ijkCodes = ChannelHandler.ijkCodes;
                 if (ijkCodes == null || ijkCodes.size() == 0)
                     return;
                 FastClickCheckUtil.check(v);

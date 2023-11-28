@@ -24,12 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class M3UParser {
+public class ChannelHandler {
 
     public static List<IJKCode> ijkCodes;
 
@@ -207,7 +206,7 @@ public class M3UParser {
     }
 
     public static void setIjkCodes(List<IJKCode> ijkCodes) {
-        M3UParser.ijkCodes = ijkCodes;
+        ChannelHandler.ijkCodes = ijkCodes;
     }
 
     public static List<LiveChannelGroup> getLiveChannelGroupList() {
@@ -215,7 +214,7 @@ public class M3UParser {
     }
 
     public static void setLiveChannelGroupList(List<LiveChannelGroup> liveChannelGroupList) {
-        M3UParser.liveChannelGroupList = liveChannelGroupList;
+        ChannelHandler.liveChannelGroupList = liveChannelGroupList;
     }
 
     public static JsonArray getDefaultIjk() {
@@ -223,14 +222,31 @@ public class M3UParser {
     }
 
     public static void setDefaultIjk(JsonArray defaultIjk) {
-        M3UParser.defaultIjk = defaultIjk;
+        ChannelHandler.defaultIjk = defaultIjk;
     }
+
 
     public static void saxUrl(String url, CallBack success, CallBack failed) {
 
         if (url.equals("")) {
             failed.run();
             return;
+        }
+
+        int groupType = Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 0);
+        String groupApi = Hawk.get(HawkConfig.CHANNEL_CONFIG_API, "");
+
+        if (isUseCache()) {
+            if (groupType == 1 && !groupApi.equals("")) {
+                setLiveChannelGroupList(Hawk.get(HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT, new ArrayList<>()));
+            } else {
+                setLiveChannelGroupList(Hawk.get(HawkConfig.CACHE_CHANNEL_RESULT, new ArrayList<>()));
+            }
+
+            if (!liveChannelGroupList.isEmpty()) {
+                success.run();
+                return;
+            }
         }
 
         if (url.startsWith("clan://")) {
@@ -256,7 +272,6 @@ public class M3UParser {
             @Override
             public void onSuccess(com.lzy.okgo.model.Response<String> response) {
 
-
                 try {
                     liveChannelGroupList.clear();
                     String body = response.body();
@@ -271,10 +286,11 @@ public class M3UParser {
                     }
                     //普通模式
                     Toast.makeText(App.getInstance(), "加载直播源成功。。。", Toast.LENGTH_SHORT).show();
+                    Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT, ChannelHandler.getLiveChannelGroupList());
+                    Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT_TIME, System.currentTimeMillis());
 
-                    Log.d(Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 0) + "");
-                    if (Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 0) == 1) {
-                        ChannelLayout.channelLayoutHandler(success, failed);
+                    if (groupType == 1&& !groupApi.equals("")) {
+                        ChannelCustomerGroup.channelLayoutHandler(groupApi,success, failed);
                     } else {
                         success.run();
                     }
@@ -288,6 +304,16 @@ public class M3UParser {
             }
 
         });
+    }
+
+    private static boolean isUseCache() {
+        return System.currentTimeMillis() - Hawk.<Long>get(HawkConfig.CACHE_CHANNEL_RESULT_TIME, System.currentTimeMillis()) < 24 * 60 * 60 * 1000;
+    }
+
+    public static void clearCache() {
+        //更改配置的时候重新加载缓存
+        Hawk.put(HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT, null);
+        Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT, null);
     }
 
     public static String toSimplifiedChinese(String traditionalChinese) {

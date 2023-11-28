@@ -2,11 +2,10 @@ package com.github.tvbox.osc.util;
 
 import android.content.Context;
 
-import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.bean.IJKCode;
 import com.github.tvbox.osc.player.IjkMediaPlayer;
 import com.github.tvbox.osc.player.render.SurfaceRenderViewFactory;
-import com.github.tvbox.osc.util.m3u.M3UParser;
+import com.github.tvbox.osc.util.m3u.ChannelHandler;
 import com.orhanobut.hawk.Hawk;
 
 import org.json.JSONException;
@@ -34,7 +33,7 @@ public class PlayerHelper {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        IJKCode codec = M3UParser.getIJKCodec(ijkCode);
+        IJKCode codec = ChannelHandler.getIJKCodec(ijkCode);
 
         PlayerFactory playerFactory;
         if (playerType == 1) {

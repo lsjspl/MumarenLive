@@ -40,7 +40,7 @@ import com.github.tvbox.osc.ui.tv.widget.ViewObj;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.Log;
-import com.github.tvbox.osc.util.m3u.M3UParser;
+import com.github.tvbox.osc.util.m3u.ChannelHandler;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
@@ -211,7 +211,7 @@ public class LivePlayActivity extends BaseActivity {
 
             loadLiveChannels(apiUrl, () -> dialog.show());
 
-        } else if (M3UParser.liveChannelGroupList.isEmpty()) {
+        } else if (ChannelHandler.liveChannelGroupList.isEmpty()) {
             dialog.show();
         }
         isInit = true;
@@ -242,10 +242,10 @@ public class LivePlayActivity extends BaseActivity {
         }
     }
 
-    private void loadLiveChannels(String apiUrl, M3UParser.CallBack failed) {
+    private void loadLiveChannels(String apiUrl, ChannelHandler.CallBack failed) {
 
         currentApiUrl = apiUrl;
-        M3UParser.saxUrl(apiUrl, () -> {
+        ChannelHandler.saxUrl(apiUrl, () -> {
             initVideoView();
             initChannelGroupView();
             initLiveChannelView();
@@ -841,6 +841,7 @@ public class LivePlayActivity extends BaseActivity {
                 break;
             case 4://
                 Hawk.put(HawkConfig.CHANNEL_GROUP_TYPE, position);
+                finish();
                 jumpActivity(this.getClass());
                 break;
             case 5:
@@ -876,7 +877,7 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void initLiveChannelList() {
-        List<LiveChannelGroup> list = M3UParser.liveChannelGroupList;
+        List<LiveChannelGroup> list = ChannelHandler.liveChannelGroupList;
         if (list.isEmpty()) {
             Toast.makeText(App.getInstance(), "频道列表为空", Toast.LENGTH_SHORT).show();
             jumpActivity(SettingActivity.class);

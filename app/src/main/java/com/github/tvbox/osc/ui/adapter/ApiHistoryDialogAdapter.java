@@ -74,7 +74,8 @@ public class ApiHistoryDialogAdapter extends ListAdapter<String, ApiHistoryDialo
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ApiHistoryDialogAdapter.SelectViewHolder holder, int position) {
-        String value = data.get(position);
+
+        String value = position==-1?"":data.get(position);
         String name = value;
         if (select.equals(value))
             name = "√ " + name;
@@ -82,8 +83,8 @@ public class ApiHistoryDialogAdapter extends ListAdapter<String, ApiHistoryDialo
         holder.itemView.findViewById(R.id.tvName).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (select.equals(value))
-                    return;
+//                if (select.equals(value))
+//                    return;
                 notifyItemChanged(data.indexOf(select));
                 select = value;
                 notifyItemChanged(data.indexOf(value));

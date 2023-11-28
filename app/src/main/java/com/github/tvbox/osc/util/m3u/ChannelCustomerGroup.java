@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class ChannelLayout {
+public class ChannelCustomerGroup {
 
 
     /*
@@ -43,15 +43,10 @@ public class ChannelLayout {
     public static int otherType = 0;
     public final static LinkedHashMap<String, String> groupRules = new LinkedHashMap<>();
 
-    public static void saxUrl(String url, M3UParser.CallBack success, M3UParser.CallBack failed) {
-
-        if (url.equals("")) {
-            failed.run();
-            return;
-        }
+    public static void saxUrl(String url, ChannelHandler.CallBack success, ChannelHandler.CallBack failed) {
 
         if (url.startsWith("clan://")) {
-            url = M3UParser.clanToAddress(url);
+            url = ChannelHandler.clanToAddress(url);
         }
         Log.d("load:" + url);
 
@@ -113,9 +108,7 @@ public class ChannelLayout {
 
     }
 
-    public static void channelLayoutHandler(M3UParser.CallBack success, M3UParser.CallBack failed) {
-
-        String configUrl = Hawk.get(HawkConfig.CHANNEL_CONFIG_API);
+    public static void channelLayoutHandler(String configUrl,ChannelHandler.CallBack success, ChannelHandler.CallBack failed) {
 
         saxUrl(configUrl, () -> {
             handler();
@@ -136,7 +129,7 @@ public class ChannelLayout {
         }
 
 
-        List<LiveChannelGroup> liveChannelGroupList = M3UParser.liveChannelGroupList;
+        List<LiveChannelGroup> liveChannelGroupList = ChannelHandler.liveChannelGroupList;
 
         for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
 
@@ -192,11 +185,10 @@ public class ChannelLayout {
             for (LiveChannelItem liveChannel : group.getLiveChannels()) {
                 liveChannel.setChannelNum(index++);
             }
-
-
         }
 
-        M3UParser.setLiveChannelGroupList(new ArrayList<>(tmp.values()));
+        ChannelHandler.setLiveChannelGroupList(new ArrayList<>(tmp.values()));
+        Hawk.put(HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT, ChannelHandler.getLiveChannelGroupList());
     }
 
 }

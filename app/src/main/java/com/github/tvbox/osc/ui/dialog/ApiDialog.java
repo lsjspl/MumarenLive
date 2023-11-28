@@ -16,6 +16,8 @@ import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.Log;
+import com.github.tvbox.osc.util.m3u.ChannelHandler;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
@@ -89,6 +91,8 @@ public class ApiDialog extends BaseDialog {
                 Hawk.put(HawkConfig.CHANNELCONFIGAPIHISTORY, history);
             }
 
+
+            ChannelHandler.clearCache();
             listener.onchange(newApi);
         });
 
@@ -99,16 +103,16 @@ public class ApiDialog extends BaseDialog {
                 return;
             String current = Hawk.get(HawkConfig.API_URL, "");
             int idx = 0;
-            if (history.contains(current))
+            if (history.contains(current)){
                 idx = history.indexOf(current);
+            }
+
             ApiHistoryDialog dialog = new ApiHistoryDialog(getContext());
             dialog.setTip("历史配置列表");
             dialog.setAdapter(new ApiHistoryDialogAdapter.SelectDialogInterface() {
                 @Override
                 public void click(String value) {
                     inputApi.setText(value);
-                    listener.onchange(value);
-                    dialog.dismiss();
                 }
 
                 @Override
@@ -133,7 +137,6 @@ public class ApiDialog extends BaseDialog {
                 @Override
                 public void click(String value) {
                     channelConfigApi.setText(value);
-                    listener.onchange(value);
                 }
 
                 @Override
