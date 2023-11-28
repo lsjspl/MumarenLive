@@ -37,10 +37,6 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.HomeActivity"
-            android:screenOrientation="landscape" />
-
-        <activity
             android:name=".ui.activity.DetailActivity"
             android:screenOrientation="landscape" />
         <activity
