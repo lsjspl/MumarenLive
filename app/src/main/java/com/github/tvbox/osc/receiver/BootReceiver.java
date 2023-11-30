@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.github.tvbox.osc.ui.activity.LivePlayActivity;
+import com.github.mr5.live.ui.LivePlayActivity;
 
 public class BootReceiver extends BroadcastReceiver {
 

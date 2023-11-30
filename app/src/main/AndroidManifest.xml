@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:name=".base.App"
+        android:name="com.github.mr5.live.base.App"
         android:allowBackup="true"
         android:banner="@drawable/app_banner"
         android:configChanges="orientation|keyboardHidden|screenSize"
@@ -28,7 +28,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".ui.activity.LivePlayActivity"
+            android:name="com.github.mr5.live.ui.LivePlayActivity"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

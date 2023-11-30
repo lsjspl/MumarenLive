@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_focused="true">
+
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
         <shape>
-            <corners android:radius="@dimen/vs_5" />
-            <solid android:color="@color/color_353744" />
+            <solid android:color="#E57373"/> <!-- Light red background color when pressed -->
+            <corners android:radius="3dp"/> <!-- Corner radius -->
         </shape>
     </item>
-    <item android:state_focused="false">
+
+    <!-- Focused state -->
+    <item android:state_focused="true">
         <shape>
-            <corners android:radius="@dimen/vs_5" />
-            <solid android:color="@color/color_CC353744" />
+            <solid android:color="#FFD54F"/> <!-- Light yellow background color when focused -->
+            <corners android:radius="3dp"/> <!-- Corner radius -->
+        </shape>
+    </item>
+
+    <!-- Default state -->
+    <item>
+        <shape>
+            <solid android:color="#2196F3"/> <!-- Green background color by default -->
+            <corners android:radius="3dp"/> <!-- Corner radius -->
         </shape>
     </item>
 </selector>

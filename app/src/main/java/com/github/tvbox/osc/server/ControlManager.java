@@ -8,7 +8,7 @@ import android.text.TextUtils;
 
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.receiver.SearchReceiver;
-import com.github.tvbox.osc.util.HawkConfig;
+import com.github.mr5.live.util.HawkConfig;
 import com.orhanobut.hawk.Hawk;
 
 import org.greenrobot.eventbus.EventBus;

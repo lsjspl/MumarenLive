@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.github.tvbox.osc.base.BaseLazyFragment;
+import com.github.mr5.live.base.BaseLazyFragment;
 
 import java.util.List;
 

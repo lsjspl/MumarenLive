@@ -2,7 +2,7 @@ package com.github.catvod.crawler;
 
 import android.content.Context;
 
-import com.github.tvbox.osc.util.OkGoHelper;
+import com.github.mr5.live.util.OkGoHelper;
 
 import org.json.JSONObject;
 

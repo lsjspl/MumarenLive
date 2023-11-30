@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.github.tvbox.osc.base.App;
+import com.github.mr5.live.base.App;
 import com.github.tvbox.osc.util.FileUtils;
 
 import java.io.File;

@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <corners android:radius="@dimen/vs_5" />
-    <solid android:color="@color/color_FFFFFF" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background shape with blur effect -->
+    <item>
+        <shape>
+            <solid android:color="#CC000000"/> <!-- Semi-transparent white color -->
+            <corners android:radius="16dp"/> <!-- Corner radius -->
+        </shape>
+    </item>
+
+    <!-- Apply blur effect -->
+    <!-- Border (optional) -->
+    <item android:right="1dp" android:left="1dp" android:top="1dp" android:bottom="1dp">
+        <shape>
+            <solid android:color="#00000000"/> <!-- Transparent color for the border -->
+            <corners android:radius="16dp"/> <!-- Corner radius -->
+            <stroke android:width="1dp" android:color="#FFFFFF"/> <!-- White border color -->
+        </shape>
+    </item>
+</layer-list>

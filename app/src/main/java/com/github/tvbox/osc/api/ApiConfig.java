@@ -1,32 +1,13 @@
 package com.github.tvbox.osc.api;
 
-import android.app.Activity;
-import android.net.Uri;
-import android.os.Build;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
-
 import com.github.catvod.crawler.JarLoader;
 import com.github.catvod.crawler.Spider;
-import com.github.tvbox.osc.base.App;
-import com.github.tvbox.osc.bean.LiveChannelGroup;
-import com.github.tvbox.osc.bean.IJKCode;
-import com.github.tvbox.osc.bean.LiveChannelItem;
+import com.github.mr5.live.base.App;
 import com.github.tvbox.osc.bean.ParseBean;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.server.ControlManager;
-import com.github.tvbox.osc.ui.activity.LivePlayActivity;
-import com.github.tvbox.osc.util.AdBlocker;
-import com.github.tvbox.osc.util.DefaultConfig;
-import com.github.tvbox.osc.util.HawkConfig;
+import com.github.mr5.live.util.HawkConfig;
 import com.github.tvbox.osc.util.MD5;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
 import com.lzy.okgo.model.Response;
@@ -34,22 +15,13 @@ import com.orhanobut.hawk.Hawk;
 
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author pj567

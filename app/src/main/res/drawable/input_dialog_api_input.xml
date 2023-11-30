@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:state_focused="true">
-        <layer-list>
-            <item android:bottom="@dimen/vs_5" android:left="@dimen/vs_20_" android:right="@dimen/vs_20_" android:top="@dimen/vs_20_">
-                <shape android:shape="rectangle">
-                    <stroke android:width="@dimen/vs_2" android:color="@color/color_CC000000" />
-                    <solid android:color="@android:color/transparent" />
-                </shape>
-            </item>
-        </layer-list>
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="#E0E0E0"/> <!-- Light gray background color when pressed -->
+            <corners android:radius="8dp"/> <!-- Corner radius -->
+        </shape>
     </item>
-    <item android:state_focused="false">
-        <layer-list>
-            <item android:bottom="@dimen/vs_5" android:left="@dimen/vs_20_" android:right="@dimen/vs_20_" android:top="@dimen/vs_20_">
-                <shape android:shape="rectangle">
-                    <stroke android:width="@dimen/vs_1" android:color="@color/color_6C3D3D3D" />
-                    <solid android:color="@android:color/transparent" />
-                </shape>
-            </item>
-        </layer-list>
+
+    <!-- Focused state -->
+    <item android:state_focused="true">
+        <shape>
+            <solid android:color="#FFC107"/> <!-- Light yellow background color when focused -->
+            <corners android:radius="8dp"/> <!-- Corner radius -->
+        </shape>
+    </item>
+
+    <!-- Default state -->
+    <item>
+        <shape>
+            <solid android:color="#FFFFFF"/> <!-- White background color by default -->
+            <corners android:radius="8dp"/> <!-- Corner radius -->
+        </shape>
     </item>
 </selector>

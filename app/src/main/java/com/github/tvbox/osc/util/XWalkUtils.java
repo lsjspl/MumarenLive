@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.github.mr5.live.util.Log;
 import org.xwalk.core.XWalkInitializer;
 
 import java.io.BufferedInputStream;

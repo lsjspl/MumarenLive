@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.tvbox.osc.R;
-import com.github.tvbox.osc.base.BaseActivity;
+import com.github.mr5.live.base.BaseActivity;
 import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 

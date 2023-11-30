@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.github.tvbox.osc.R;
-import com.github.tvbox.osc.base.App;
+import com.github.mr5.live.base.App;
 import com.github.tvbox.osc.data.AppDataManager;
 import com.github.tvbox.osc.ui.adapter.BackupAdapter;
 import com.github.tvbox.osc.util.FileUtils;

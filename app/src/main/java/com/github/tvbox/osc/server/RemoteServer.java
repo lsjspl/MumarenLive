@@ -9,7 +9,7 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.event.ServerEvent;
 import com.github.tvbox.osc.util.FileUtils;
-import com.github.tvbox.osc.util.OkGoHelper;
+import com.github.mr5.live.util.OkGoHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
