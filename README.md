@@ -13,19 +13,19 @@ txt的可以使用之前的tvbox的通用格式，就是把之前文件的live�
 到目前为止核心功能已经开发完毕，还有一些小体验上的不舒服，后面有时间再说。
 为了保证您的正常体验，请尽量不要做不正常的操作，我并没有做完全bug测试。
 
-添加了自定义频道布局的功能，可以筛选自己想看的频道，模糊匹配
-比如 你可以创建一个txt放在本地 内容如下：
-CCTV:CCTV
-卫视:北京卫视,卫视
-以上配置会将频道过滤掉只有中央的频道和卫视的频道，并且会分两个组CCTV和卫视
+添加了自定义频道布局的功能，可以筛选自己想看的频道，模糊匹配   
+比如 你可以创建一个txt放在本地 内容如下：    
+CCTV:CCTV   
+卫视:北京卫视,卫视   
+以上配置会将频道过滤掉只有中央的频道和卫视的频道，并且会分两个组CCTV和卫视   
 
-添加了开机自启的代码，不知道能不能有用，这是我想要的最核心的功能，目前没有设备测试。
+添加了开机自启的代码，不知道能不能有用，这是我想要的最核心的功能，目前没有设备测试。    
 
-增加了源缓存，会自动缓存你的源，24小时重新更新一下。当然你去设置里重新点下配置按钮也能更新缓存
+增加了源缓存，会自动缓存你的源，24小时重新更新一下。当然你去设置里重新点下配置按钮也能更新缓存    
 
-以下是一些我自己用的源
-正经源：https://epg.pw/test_channel_page.html?lang=zh-hans
-正经源：https://raw.githubusercontent.com/YanG-1989/m3u/main/Gather.m3u
-不正经源：https://raw.githubusercontent.com/YanG-1989/m3u/main/Adult.m3u
-不正经源：https://tv.iill.top/xx
+以下是一些我自己用的源   
+正经源：https://epg.pw/test_channel_page.html?lang=zh-hans   
+正经源：https://raw.githubusercontent.com/YanG-1989/m3u/main/Gather.m3u   
+不正经源：https://raw.githubusercontent.com/YanG-1989/m3u/main/Adult.m3u   
+不正经源：https://tv.iill.top/xx    
 
