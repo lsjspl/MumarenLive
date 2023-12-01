@@ -28,6 +28,13 @@ CCTV:CCTV
 正经源：https://raw.githubusercontent.com/YanG-1989/m3u/main/Gather.m3u   
 不正经源：https://raw.githubusercontent.com/YanG-1989/m3u/main/Adult.m3u   
 不正经源：https://tv.iill.top/xx    
-非常好的源：https://mirror.ghproxy.com/https://raw.githubusercontent.com/Ftindy/IPTV-URL/main/msp.m3u    
+非常好的源：
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/Ftindy/IPTV-URL/main/msp.m3u    
 https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhanghongguang/zhanghongguang.github.io/main/playlist.m3u    
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhanghongguang/zhanghongguang.github.io/main/SamsungTVPlus.m3u    
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhanghongguang/zhanghongguang.github.io/main/EdemTV.m3u   
+
+这个是ipv6的 需要开启ipv6
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhanghongguang/zhanghongguang.github.io/main/IPV6_IPTV.m3u    
+
 
