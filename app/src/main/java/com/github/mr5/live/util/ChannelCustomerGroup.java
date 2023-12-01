@@ -3,8 +3,8 @@ package com.github.mr5.live.util;
 import android.widget.Toast;
 
 import com.github.mr5.live.base.App;
-import com.github.tvbox.osc.bean.LiveChannelGroup;
-import com.github.tvbox.osc.bean.LiveChannelItem;
+import com.github.mr5.live.bean.LiveChannelGroup;
+import com.github.mr5.live.bean.LiveChannel;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
 import com.lzy.okgo.model.Response;
@@ -106,7 +106,7 @@ public class ChannelCustomerGroup {
 
     }
 
-    public static void channelLayoutHandler(String configUrl,ChannelHandler.CallBack success, ChannelHandler.CallBack failed) {
+    public static void channelLayoutHandler(String configUrl, ChannelHandler.CallBack success, ChannelHandler.CallBack failed) {
 
         saxUrl(configUrl, () -> {
             handler();
@@ -121,8 +121,8 @@ public class ChannelCustomerGroup {
             LiveChannelGroup liveChannelGroup = new LiveChannelGroup();
             tmp.put(key, liveChannelGroup);
             liveChannelGroup.setLiveChannels(new ArrayList<>());
-            liveChannelGroup.setGroupIndex(index++);
-            liveChannelGroup.setGroupName(key);
+            liveChannelGroup.setIndex(index++);
+            liveChannelGroup.setName(key);
             liveChannelGroup.setGroupPassword("");
         }
 
@@ -131,15 +131,15 @@ public class ChannelCustomerGroup {
 
         for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
 
-            for (LiveChannelItem liveChannel : liveChannelGroup.getLiveChannels()) {
+            for (LiveChannel liveChannel : liveChannelGroup.getLiveChannels()) {
                 for (String key : groupRules.keySet()) {
 
                     String[] values = groupRules.get(key).split(",");
                     for (String value : values) {
-                        if (value.toLowerCase(Locale.CHINESE).contains(liveChannel.getChannelName().toLowerCase(Locale.CHINESE)) ||
-                                liveChannel.getChannelName().toLowerCase(Locale.CHINESE).contains(value.toLowerCase(Locale.CHINESE))) {
+                        if (value.toLowerCase(Locale.CHINESE).contains(liveChannel.getName().toLowerCase(Locale.CHINESE)) ||
+                                liveChannel.getName().toLowerCase(Locale.CHINESE).contains(value.toLowerCase(Locale.CHINESE))) {
 
-                            liveChannel.setChannelIndex(tmp.get(key).getLiveChannels().size());
+                            liveChannel.setIndex(tmp.get(key).getLiveChannels().size());
                             tmp.get(key).getLiveChannels().add(liveChannel);
                         }
                     }
@@ -147,15 +147,16 @@ public class ChannelCustomerGroup {
             }
         }
 
-        index=0;
+        int num = 0;
 
         for (LiveChannelGroup group : tmp.values()) {
-            Collections.sort(group.getLiveChannels(), new Comparator<LiveChannelItem>() {
+            Collections.sort(group.getLiveChannels(), new Comparator<LiveChannel>() {
                 Collator collator = Collator.getInstance(Locale.CHINA);
+
                 @Override
-                public int compare(LiveChannelItem o1, LiveChannelItem o2) {
-                    String[] parts1 = o1.getChannelName().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
-                    String[] parts2 = o2.getChannelName().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+                public int compare(LiveChannel o1, LiveChannel o2) {
+                    String[] parts1 = o1.getName().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+                    String[] parts2 = o2.getName().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
 
                     // 依次比较字母和数字部分
                     for (int i = 0; i < Math.min(parts1.length, parts2.length); i++) {
@@ -180,8 +181,10 @@ public class ChannelCustomerGroup {
             });
 
 
-            for (LiveChannelItem liveChannel : group.getLiveChannels()) {
-                liveChannel.setChannelNum(index++);
+             index=0;
+            for (LiveChannel liveChannel : group.getLiveChannels()) {
+                liveChannel.setNum(num++);
+                liveChannel.setIndex(index++);
             }
         }
 

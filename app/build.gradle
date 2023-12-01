@@ -107,4 +107,7 @@ dependencies {
     implementation 'com.github.getActivity:XXPermissions:13.6'
 
     implementation 'com.github.houbb:opencc4j:1.2.0'
+
+    implementation 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 }

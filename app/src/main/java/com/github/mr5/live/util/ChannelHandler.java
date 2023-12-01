@@ -5,9 +5,10 @@ import android.widget.Toast;
 
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.github.mr5.live.base.App;
+import com.github.mr5.live.bean.ChannelInfo;
 import com.github.mr5.live.bean.IJKCode;
-import com.github.tvbox.osc.bean.LiveChannelGroup;
-import com.github.tvbox.osc.bean.LiveChannelItem;
+import com.github.mr5.live.bean.LiveChannelGroup;
+import com.github.mr5.live.bean.LiveChannel;
 import com.github.tvbox.osc.server.ControlManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -15,6 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
+import com.lzy.okgo.callback.Callback;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 
@@ -226,16 +228,16 @@ public class ChannelHandler {
 
     public static void saxUrl(String url, CallBack success, CallBack failed) {
 
-        if (url.equals("")) {
+        if (url.isEmpty()) {
             failed.run();
             return;
         }
 
-        int groupType = Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 0);
+        int groupType = Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 1);
         String groupApi = Hawk.get(HawkConfig.CHANNEL_CONFIG_API, "");
 
         if (isUseCache()) {
-            if (groupType == 1 && !groupApi.equals("")) {
+            if (groupType == 1 && !groupApi.isEmpty()) {
                 setLiveChannelGroupList(Hawk.get(HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT, new ArrayList<>()));
             } else {
                 setLiveChannelGroupList(Hawk.get(HawkConfig.CACHE_CHANNEL_RESULT, new ArrayList<>()));
@@ -285,12 +287,24 @@ public class ChannelHandler {
                     //普通模式
                     Toast.makeText(App.getInstance(), "加载直播源成功。。。", Toast.LENGTH_SHORT).show();
                     Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT, ChannelHandler.getLiveChannelGroupList());
+
                     Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT_TIME, System.currentTimeMillis());
 
-                    if (groupType == 1&& !groupApi.equals("")) {
-                        ChannelCustomerGroup.channelLayoutHandler(groupApi,success, failed);
-                    } else {
+
+                    CallBack successWarp= () -> {
                         success.run();
+                        for (LiveChannelGroup group : liveChannelGroupList) {
+                            for (LiveChannel liveChannel : group.getLiveChannels()) {
+                                liveChannel.setGroupIndex(group.getIndex());
+                            }
+                        }
+                    };
+
+                    success.run();
+                    if (groupType == 1 && !groupApi.equals("")) {
+                        ChannelCustomerGroup.channelLayoutHandler(groupApi, successWarp, failed);
+                    } else {
+                        successWarp.run();
                     }
 
                 } catch (Exception e) {
@@ -312,6 +326,7 @@ public class ChannelHandler {
         //更改配置的时候重新加载缓存
         Hawk.put(HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT, null);
         Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT, null);
+        Hawk.put(HawkConfig.LIVE_CHANNEL, null);
     }
 
     public static String toSimplifiedChinese(String traditionalChinese) {
@@ -374,10 +389,10 @@ public class ChannelHandler {
     private static void parseM3uContent(ArrayList<ChannelInfo> channelInfos) {
         liveChannelGroupList.clear();
         LiveChannelGroup group;
-        ArrayList<LiveChannelItem> channels;
-        LiveChannelItem channel;
+        ArrayList<LiveChannel> channels;
+        LiveChannel channel;
 
-        Map<String, LiveChannelItem> liveMap = new HashMap<>();
+        Map<String, LiveChannel> liveMap = new HashMap<>();
         Map<String, LiveChannelGroup> groupMap = new HashMap<>();
 
         int index = 0;
@@ -395,8 +410,8 @@ public class ChannelHandler {
                 group = new LiveChannelGroup();
                 liveChannelGroupList.add(group);
                 channels = new ArrayList<>();
-                group.setGroupName(groupTitle);
-                group.setGroupIndex(liveChannelGroupList.size() - 1);
+                group.setName(groupTitle);
+                group.setIndex(liveChannelGroupList.size() - 1);
                 group.setLiveChannels(channels);
                 group.setGroupPassword("");
                 groupMap.put(groupName, group);
@@ -405,20 +420,20 @@ public class ChannelHandler {
 
             if (liveMap.containsKey(name.trim().toLowerCase())) {
                 channel = liveMap.get(name.trim().toLowerCase());
-                channel.getChannelUrls().add(url);
-                channel.getChannelSourceNames().add("源" + channel.getChannelUrls().size());
+                channel.getUrls().add(url);
+                channel.getSourceNames().add("源" + channel.getUrls().size());
             } else {
-                channel = new LiveChannelItem();
+                channel = new LiveChannel();
                 liveMap.put(name.trim().toLowerCase(), channel);
-                channels.add(channel);
-                channel.setChannelIndex(channels.size());
-                channel.setChannelNum(index++);
-                channel.setChannelName(name);
+                channel.setIndex(channels.size());
+                channel.setNum(index++);
+                channel.setName(name);
                 channel.setLogoUrl(tvLogo);
-                channel.setChannelUrls(new ArrayList<>());
-                channel.getChannelUrls().add(url);
-                channel.setChannelSourceNames(new ArrayList<>());
-                channel.getChannelSourceNames().add("源" + channel.getChannelUrls().size());
+                channel.setUrls(new ArrayList<>());
+                channel.getUrls().add(url);
+                channel.setSourceNames(new ArrayList<>());
+                channel.getSourceNames().add("源" + channel.getUrls().size());
+                channels.add(channel);
             }
 
         }
@@ -430,13 +445,13 @@ public class ChannelHandler {
     private static void parseNormal(String body) {
         liveChannelGroupList.clear();
         String[] all = body.split("\\r\\n");
-        LiveChannelGroup tvs;
-        ArrayList<LiveChannelItem> channels = new ArrayList<>();
+        LiveChannelGroup group = null;
+        ArrayList<LiveChannel> channels = new ArrayList<>();
 //                liveChannelGroupList.addAll();
 
-        LiveChannelItem lives;
+        LiveChannel channel;
 
-        Map<String, LiveChannelItem> liveMap = new HashMap<>();
+        Map<String, LiveChannel> liveMap = new HashMap<>();
 
         int index = 0;
 
@@ -445,13 +460,13 @@ public class ChannelHandler {
             if (item.trim().toLowerCase().isEmpty() || item.trim().startsWith("#")) {
 
             } else if (item.trim().toLowerCase().contains("#genre#")) {
-                tvs = new LiveChannelGroup();
+                group = new LiveChannelGroup();
                 channels = new ArrayList<>();
-                liveChannelGroupList.add(tvs);
-                tvs.setGroupName(toSimplifiedChinese(item.split(",")[0]));
-                tvs.setGroupIndex(liveChannelGroupList.size() - 1);
-                tvs.setLiveChannels(channels);
-                tvs.setGroupPassword("");
+                liveChannelGroupList.add(group);
+                group.setName(toSimplifiedChinese(item.split(",")[0]));
+                group.setIndex(liveChannelGroupList.size() - 1);
+                group.setLiveChannels(channels);
+                group.setGroupPassword("");
             } else {
 
                 String split = "";
@@ -474,20 +489,20 @@ public class ChannelHandler {
                 String url = appendIndex > 1 ? item.split(split)[1] : split + item.split(split)[1];
 
                 if (liveMap.containsKey(name)) {
-                    lives = liveMap.get(name);
-                    lives.getChannelUrls().add(url);
-                    lives.getChannelSourceNames().add("源" + lives.getChannelUrls().size());
+                    channel = liveMap.get(name);
+                    channel.getUrls().add(url);
+                    channel.getSourceNames().add("源" + channel.getUrls().size());
                 } else {
-                    lives = new LiveChannelItem();
-                    liveMap.put(name, lives);
-                    channels.add(lives);
-                    lives.setChannelIndex(channels.size() - 1);
-                    lives.setChannelNum(index++);
-                    lives.setChannelName(name);
-                    lives.setChannelUrls(new ArrayList<>());
-                    lives.getChannelUrls().add(url);
-                    lives.setChannelSourceNames(new ArrayList<>());
-                    lives.getChannelSourceNames().add("源" + lives.getChannelUrls().size());
+                    channel = new LiveChannel();
+                    liveMap.put(name, channel);
+                    channel.setIndex(channels.size());
+                    channel.setNum(index++);
+                    channel.setName(name);
+                    channel.setUrls(new ArrayList<>());
+                    channel.getUrls().add(url);
+                    channel.setSourceNames(new ArrayList<>());
+                    channel.getSourceNames().add("源" + channel.getUrls().size());
+                    channels.add(channel);
                 }
 
             }
@@ -543,6 +558,15 @@ public class ChannelHandler {
     public static IJKCode getCurrentIJKCode() {
         String codeName = Hawk.get(HawkConfig.IJK_CODEC, "");
         return getIJKCodec(codeName);
+    }
+
+    public static void saveChange(LiveChannel currentLiveChannel) {
+        liveChannelGroupList.get(currentLiveChannel.getGroupIndex())
+                .getLiveChannels()
+                .get(currentLiveChannel.getIndex())
+                .setSourceIndex(currentLiveChannel.getSourceIndex());
+        int groupType = Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 1);
+        Hawk.put(groupType==1?HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT:HawkConfig.CACHE_CHANNEL_RESULT,liveChannelGroupList);
     }
 
 

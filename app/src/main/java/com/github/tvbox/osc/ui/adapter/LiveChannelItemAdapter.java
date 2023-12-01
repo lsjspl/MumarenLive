@@ -6,7 +6,7 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.github.tvbox.osc.R;
-import com.github.tvbox.osc.bean.LiveChannelItem;
+import com.github.mr5.live.bean.LiveChannel;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * @date :2021/1/12
  * @description:
  */
-public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannelItem, BaseViewHolder> {
+public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannel, BaseViewHolder> {
     private int selectedChannelIndex = -1;
     private int focusedChannelIndex = -1;
 
@@ -24,12 +24,12 @@ public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannelItem, Ba
     }
 
     @Override
-    protected void convert(BaseViewHolder holder, LiveChannelItem item) {
+    protected void convert(BaseViewHolder holder, LiveChannel item) {
         TextView tvChannelNum = holder.getView(R.id.tvChannelNum);
         TextView tvChannel = holder.getView(R.id.tvChannelName);
-        tvChannelNum.setText(String.format("%s", item.getChannelNum()));
-        tvChannel.setText(item.getChannelName());
-        int channelIndex = item.getChannelIndex();
+        tvChannelNum.setText(String.format("%s", item.getNum()));
+        tvChannel.setText(item.getName());
+        int channelIndex = item.getIndex();
         if (channelIndex == selectedChannelIndex && channelIndex != focusedChannelIndex) {
             tvChannelNum.setTextColor(mContext.getResources().getColor(R.color.color_1890FF));
             tvChannel.setTextColor(mContext.getResources().getColor(R.color.color_1890FF));

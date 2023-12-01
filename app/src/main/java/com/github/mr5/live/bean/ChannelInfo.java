@@ -1,4 +1,4 @@
-package com.github.mr5.live.util;
+package com.github.mr5.live.bean;
 
 public class ChannelInfo {
     private String duration;

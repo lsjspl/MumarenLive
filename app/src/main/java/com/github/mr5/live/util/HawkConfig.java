@@ -31,7 +31,7 @@ public class HawkConfig {
 
     //0原来的分组  1自定义分组
     public static final String CHANNEL_GROUP_TYPE = "CHANNEL_GROUP_TYPE";
-    public static final String CACHE_CHANNEL_LAYOUT_RESULT ="CACHE_CHANNEL_LAYOUT_RESULT" ;
-    public static final String CACHE_CHANNEL_RESULT ="CACHE_CHANNEL_RESULT" ;
+    public static final String CACHE_CHANNEL_LAYOUT_RESULT = "CACHE_CHANNEL_LAYOUT_RESULT";
+    public static final String CACHE_CHANNEL_RESULT = "CACHE_CHANNEL_RESULT";
     public static final String CACHE_CHANNEL_RESULT_TIME = "CACHE_CHANNEL_RESULT_TIME";
 }

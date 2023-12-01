@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.MotionEvent;
 import android.widget.ProgressBar;
 
+import com.github.mr5.live.util.Log;
 import com.github.tvbox.osc.R;
 
 import org.jetbrains.annotations.NotNull;
@@ -70,8 +71,10 @@ public class LiveController extends BaseController {
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (e1.getX() - e2.getX() > minFlingDistance && Math.abs(velocityX) > minFlingVelocity) {
+            Log.d("滑动");
             listener.changeSource(-1);          //左滑
         } else if (e2.getX() - e1.getX() > minFlingDistance && Math.abs(velocityX) > minFlingVelocity) {
+            Log.d("滑动");
             listener.changeSource(1);           //右滑
         } else if (e1.getY() - e2.getY() > minFlingDistance && Math.abs(velocityY) > minFlingVelocity) {
         } else if (e2.getY() - e1.getY() > minFlingDistance && Math.abs(velocityY) > minFlingVelocity) {

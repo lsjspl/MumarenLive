@@ -1,27 +1,40 @@
-<?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- Pressed state -->
-    <item android:state_pressed="true">
-        <shape>
-            <solid android:color="#E0E0E0"/> <!-- Light gray background color when pressed -->
-            <corners android:radius="8dp"/> <!-- Corner radius -->
-        </shape>
-    </item>
-
-    <!-- Focused state -->
     <item android:state_focused="true">
-        <shape>
-            <solid android:color="#FFC107"/> <!-- Light yellow background color when focused -->
-            <corners android:radius="8dp"/> <!-- Corner radius -->
-        </shape>
-    </item>
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="#80000000"/> <!-- 80%透明度的黑色背景 -->
+                </shape>
+            </item>
 
-    <!-- Default state -->
+            <!-- Bottom stroke shape -->
+            <item android:bottom="2dp" android:top="-3dp"
+                  android:right="-3dp"
+                  android:left="-3dp">
+                <shape android:shape="rectangle" >
+                    <solid android:color="@android:color/transparent"/> <!-- 透明填充，只保留描边 -->
+                    <stroke android:width="2dp" android:color="#FFD54F"/> <!-- 描边为1dp的白色 -->
+                </shape>
+            </item>
+        </layer-list>
+    </item>
     <item>
-        <shape>
-            <solid android:color="#FFFFFF"/> <!-- White background color by default -->
-            <corners android:radius="8dp"/> <!-- Corner radius -->
-        </shape>
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="#80000000"/> <!-- 80%透明度的黑色背景 -->
+                </shape>
+            </item>
+
+            <!-- Bottom stroke shape -->
+            <item android:bottom="1dp"  android:top="-3dp"
+                  android:right="-3dp"
+                  android:left="-3dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="@android:color/transparent"/> <!-- 透明填充，只保留描边 -->
+                    <stroke android:width="2dp" android:color="#FFFFFF"/> <!-- 描边为1dp的白色 -->
+                </shape>
+            </item>
+        </layer-list>
     </item>
 </selector>

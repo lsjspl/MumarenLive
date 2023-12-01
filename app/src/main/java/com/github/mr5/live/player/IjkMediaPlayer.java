@@ -23,7 +23,7 @@ public class IjkMediaPlayer extends IjkPlayer {
     @Override
     public void setOptions() {
         super.setOptions();
-        IJKCode codecTmp = this.codec == null ? ChannelHandler.getCurrentIJKCode(): this.codec;
+        IJKCode codecTmp = this.codec == null ? ChannelHandler.getCurrentIJKCode() : this.codec;
         LinkedHashMap<String, String> options = codecTmp.getOption();
         if (options != null) {
             for (String key : options.keySet()) {

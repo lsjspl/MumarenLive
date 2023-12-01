@@ -104,7 +104,7 @@ public class ApiDialog extends BaseDialog {
                 return;
             String current = Hawk.get(HawkConfig.API_URL, "");
             int idx = 0;
-            if (history.contains(current)){
+            if (history.contains(current)) {
                 idx = history.indexOf(current);
             }
 

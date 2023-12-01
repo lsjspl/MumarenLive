@@ -2,14 +2,11 @@ package com.github.mr5.live.bean;
 
 import com.github.mr5.live.util.HawkConfig;
 import com.orhanobut.hawk.Hawk;
+import lombok.Data;
 
 import java.util.LinkedHashMap;
 
-/**
- * @author pj567
- * @date :2021/3/8
- * @description:
- */
+@Data
 public class IJKCode {
     private String name;
     private LinkedHashMap<String, String> option;
@@ -22,23 +19,4 @@ public class IJKCode {
         }
     }
 
-    public boolean isSelected() {
-        return selected;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LinkedHashMap<String, String> getOption() {
-        return option;
-    }
-
-    public void setOption(LinkedHashMap<String, String> option) {
-        this.option = option;
-    }
 }
