@@ -8,6 +8,13 @@ android {
             keyPassword '123698745'
             keyAlias 'key0'
         }
+
+        release {
+            storeFile file('D:\\Mr5\\OneDrive\\Desktop\\mm5.jks')
+            storePassword '123698745'
+            keyPassword '123698745'
+            keyAlias 'key0'
+        }
     }
     compileSdkVersion 30
 
@@ -15,8 +22,6 @@ android {
         applicationId 'com.github.tvbox.osc'
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 1
-        versionName '1.0.0'
         multiDexEnabled true
         //设置room的Schema的位置
         javaCompileOptions {
@@ -24,6 +29,8 @@ android {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+        versionCode 1
+        versionName '1.3.0'
         versionNameSuffix 'beta'
     }
 
@@ -39,13 +46,28 @@ android {
             ndk {
                 abiFilters 'armeabi-v7a'
             }
+
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    // 在 APK 文件名中包含版本号
+                    output.outputFileName = "牧马人TV_${variant.versionName}.apk"
+                }
+            }
         }
         release {
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             minifyEnabled true
 
             ndk {
                 abiFilters 'armeabi-v7a'
+            }
+
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    // 在 APK 文件名中包含版本号
+                    output.outputFileName = "牧马人TV_${variant.versionName}.apk"
+                }
             }
         }
     }
