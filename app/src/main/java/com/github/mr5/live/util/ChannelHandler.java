@@ -341,7 +341,7 @@ public class ChannelHandler {
 
     public static ArrayList<ChannelInfo> parseM3UContent(String m3uContent) {
         ArrayList<ChannelInfo> channels = new ArrayList<>();
-        String[] lines = m3uContent.split("\n");
+        String[] lines = m3uContent.split("\\r\\n|\\n");
 
         ChannelInfo channel = null;
 
@@ -444,7 +444,7 @@ public class ChannelHandler {
 
     private static void parseNormal(String body) {
         liveChannelGroupList.clear();
-        String[] all = body.split("\\r\\n");
+        String[] all = body.split("\\r\\n|\\n");
         LiveChannelGroup group = null;
         ArrayList<LiveChannel> channels = new ArrayList<>();
 //                liveChannelGroupList.addAll();
@@ -455,7 +455,17 @@ public class ChannelHandler {
 
         int index = 0;
 
+        boolean isStart=false;
+
         for (String item : all) {
+
+            if (item.trim().toLowerCase().contains("#genre#")){
+                isStart=true;
+            }
+
+            if (!isStart) {
+                continue;
+            }
 
             if (item.trim().toLowerCase().isEmpty() || item.trim().startsWith("#")) {
 

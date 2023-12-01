@@ -147,17 +147,23 @@ public class LivePlayActivity extends BaseActivity {
     private void loadLiveChannels(String apiUrl, ChannelHandler.CallBack failed) {
         showLoading();
         currentApiUrl = apiUrl;
-        ChannelHandler.saxUrl(apiUrl, () -> {
-            if (ChannelHandler.liveChannelGroupList.isEmpty()) {
-                Toast.makeText(App.getInstance(), "频道列表为空", Toast.LENGTH_SHORT).show();
-            } else {
-                liveChannelGroupList = ChannelHandler.liveChannelGroupList;
-                showSuccess();
-                initLiveState();
-            }
+
+        try {
+            ChannelHandler.saxUrl(apiUrl, () -> {
+                if (ChannelHandler.liveChannelGroupList.isEmpty()) {
+                    Toast.makeText(App.getInstance(), "频道列表为空", Toast.LENGTH_SHORT).show();
+                } else {
+                    liveChannelGroupList = ChannelHandler.liveChannelGroupList;
+                    showSuccess();
+                    initLiveState();
+                }
 
 
-        }, failed);
+            }, failed);
+        } catch (Exception e) {
+            e.printStackTrace();
+            dialog.show();
+        }
     }
 
     private void initLiveState() {
@@ -170,24 +176,27 @@ public class LivePlayActivity extends BaseActivity {
 
         liveChannelGroupAdapter.setNewData(liveChannelGroupList);
         currentLiveChannel = Hawk.get(HawkConfig.LIVE_CHANNEL, null);
+
+
+        if (currentLiveChannel != null) {
+            for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
+                if (!liveChannelGroup.getLiveChannels().isEmpty()) {
+                    for (LiveChannel liveChannel : liveChannelGroup.getLiveChannels()) {
+                        if (liveChannel.getNum() == currentLiveChannel.getNum()) {
+                            liveChannel.setSourceIndex(currentLiveChannel.getSourceIndex());
+                            currentLiveChannel = liveChannel;
+                        }
+                    }
+                }
+            }
+        }
+
         if (currentLiveChannel == null) {
             for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
                 if (!liveChannelGroup.getLiveChannels().isEmpty()) {
                     currentLiveChannel = liveChannelGroup.getLiveChannels().get(0);
                 }
             }
-        }else{
-            for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
-                if (!liveChannelGroup.getLiveChannels().isEmpty()) {
-                    for (LiveChannel liveChannel : liveChannelGroup.getLiveChannels()) {
-                        if(liveChannel.getNum()==currentLiveChannel.getNum()){
-                            liveChannel.setSourceIndex(currentLiveChannel.getSourceIndex());
-                            currentLiveChannel=liveChannel;
-                        }
-                    }
-                }
-            }
-
         }
 
         selectChannelGroup(currentLiveChannel.getGroupIndex(), false, currentLiveChannel.getIndex());
@@ -225,10 +234,10 @@ public class LivePlayActivity extends BaseActivity {
                             playPrevious();
                         break;
                     case KeyEvent.KEYCODE_DPAD_DOWN:
-                        if (Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false)){
+                        if (Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false)) {
                             Log.d("播放上一个");
                             playPrevious();
-                        }else{
+                        } else {
                             Log.d("播放下一个");
                             playNext();
                         }
