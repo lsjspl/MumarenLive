@@ -1,5 +1,6 @@
 package com.github.mr5.live.util;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -20,11 +21,8 @@ import com.lzy.okgo.callback.Callback;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.jar.Attributes;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -291,7 +289,7 @@ public class ChannelHandler {
                     Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT_TIME, System.currentTimeMillis());
 
 
-                    CallBack successWarp= () -> {
+                    CallBack successWarp = () -> {
                         success.run();
                         for (LiveChannelGroup group : liveChannelGroupList) {
                             for (LiveChannel liveChannel : group.getLiveChannels()) {
@@ -364,25 +362,33 @@ public class ChannelHandler {
     }
 
     private static void extractInfoFromExtInf(String line, ChannelInfo channel) {
-        Matcher matcher = Pattern.compile("tvg-id=\"(.*?)\"|tvg-name=\"(.*?)\"|tvg-logo=\"(.*?)\"|group-title=\"(.*?)\",(.*?)$").matcher(line);
+
+        Log.d(line);
+
+        Pattern pattern = Pattern.compile("(?:tvg-name=\"(.*?)\".*?)?" +
+                "(?:tvg-id=\"(.*?)\".*?)?" +
+                "(?:tvg-logo=\"(.*?)\".*?)?" +
+                "(?:group-title=\"(.*?)\".*?)?");
+
+        Matcher matcher = pattern.matcher(line);
+
 
         while (matcher.find()) {
-            if (matcher.group(1) != null) {
-                channel.setTvgId(matcher.group(1));
-            }
-            if (matcher.group(2) != null) {
-                channel.setTvgName(matcher.group(2));
-            }
-            if (matcher.group(3) != null) {
-                channel.setTvgLogo(matcher.group(3));
-            }
-            if (matcher.group(4) != null) {
-                channel.setGroupTitle(matcher.group(4));
-            }
-            if (matcher.group(5) != null) {
-                channel.setTitle(matcher.group(5));
+
+            String result = matcher.group();
+
+            if (result.contains("tvg-name")) {
+                channel.setTvgName(result.split("=")[1].replace("\"", ""));
+            } else if (result.contains("tvg-id")) {
+                channel.setTvgId(result.split("=")[1].replace("\"", ""));
+            } else if (result.contains("tvg-logo")) {
+                channel.setTvgLogo(result.split("=")[1].replace("\"", ""));
+            } else if (result.contains("group-title")) {
+                channel.setGroupTitle(result.split("=")[1].replace("\"", ""));
             }
         }
+
+        channel.setTitle(line.contains(",") ? line.substring(line.lastIndexOf(",") + 1) : null);
     }
 
 
@@ -397,9 +403,10 @@ public class ChannelHandler {
 
         int index = 0;
         for (ChannelInfo channelInfo : channelInfos) {
+            Log.d(channelInfo.toString());
             String groupName = toSimplifiedChinese(channelInfo.getGroupTitle());
             String groupTitle = toSimplifiedChinese(channelInfo.getGroupTitle());
-            String name = toSimplifiedChinese(channelInfo.getTvgName() == null ? channelInfo.getTitle() : channelInfo.getTvgName());
+            String name = toSimplifiedChinese(channelInfo.getTvgName() == null || channelInfo.getTvgName().isEmpty()? channelInfo.getTitle() : channelInfo.getTvgName());
             String url = channelInfo.getUrl();
             String tvLogo = channelInfo.getTvgLogo();
 
@@ -455,12 +462,12 @@ public class ChannelHandler {
 
         int index = 0;
 
-        boolean isStart=false;
+        boolean isStart = false;
 
         for (String item : all) {
 
-            if (item.trim().toLowerCase().contains("#genre#")){
-                isStart=true;
+            if (item.trim().toLowerCase().contains("#genre#")) {
+                isStart = true;
             }
 
             if (!isStart) {
@@ -576,12 +583,13 @@ public class ChannelHandler {
                 .get(currentLiveChannel.getIndex())
                 .setSourceIndex(currentLiveChannel.getSourceIndex());
         int groupType = Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 1);
-        Hawk.put(groupType==1?HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT:HawkConfig.CACHE_CHANNEL_RESULT,liveChannelGroupList);
+        Hawk.put(groupType == 1 ? HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT : HawkConfig.CACHE_CHANNEL_RESULT, liveChannelGroupList);
     }
 
 
     public interface CallBack {
         public void run();
+
     }
 
     static String clanToAddress(String lanLink) {
