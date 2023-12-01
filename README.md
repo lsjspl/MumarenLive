@@ -28,4 +28,6 @@ CCTV:CCTV
 正经源：https://raw.githubusercontent.com/YanG-1989/m3u/main/Gather.m3u   
 不正经源：https://raw.githubusercontent.com/YanG-1989/m3u/main/Adult.m3u   
 不正经源：https://tv.iill.top/xx    
+非常好的源：https://mirror.ghproxy.com/https://raw.githubusercontent.com/Ftindy/IPTV-URL/main/msp.m3u    
+https://mirror.ghproxy.com/https://raw.githubusercontent.com/zhanghongguang/zhanghongguang.github.io/main/playlist.m3u    
 
