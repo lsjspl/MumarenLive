@@ -50,7 +50,7 @@ android {
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
                     // 在 APK 文件名中包含版本号
-                    output.outputFileName = "牧马人TV_${variant.versionName}.apk"
+                    output.outputFileName = "牧马人TV_debug_{variant.versionName}.apk"
                 }
             }
         }
@@ -66,7 +66,7 @@ android {
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
                     // 在 APK 文件名中包含版本号
-                    output.outputFileName = "牧马人TV_${variant.versionName}.apk"
+                    output.outputFileName = "牧马人TV_release_${variant.versionName}.apk"
                 }
             }
         }
@@ -104,7 +104,7 @@ dependencies {
     annotationProcessor 'androidx.room:room-compiler:2.3.0'
     implementation 'androidx.room:room-runtime:2.3.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.11'
     implementation 'com.squareup.okio:okio:2.6.0'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.45-androidx'
     implementation 'com.kingja.loadsir:loadsir:1.3.8'

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -40,11 +41,17 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.mr5.live.util.HawkConfig;
 import com.github.mr5.live.util.Log;
 import com.github.mr5.live.util.ChannelHandler;
+import com.hjq.permissions.OnPermissionCallback;
+import com.hjq.permissions.Permission;
+import com.hjq.permissions.XXPermissions;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 import com.squareup.picasso.Picasso;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,6 +112,10 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     protected void init() {
+
+
+
+
         setLoadSir(findViewById(R.id.live_root));
         mVideoView = findViewById(R.id.mVideoView);
 
@@ -142,6 +153,8 @@ public class LivePlayActivity extends BaseActivity {
         });
 
         Log.d("init");
+
+
     }
 
     private void loadLiveChannels(String apiUrl, ChannelHandler.CallBack failed) {
@@ -161,7 +174,7 @@ public class LivePlayActivity extends BaseActivity {
 
             }, failed);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("",e);
             dialog.show();
         }
     }

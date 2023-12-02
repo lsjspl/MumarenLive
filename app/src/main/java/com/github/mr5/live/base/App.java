@@ -2,6 +2,7 @@ package com.github.mr5.live.base;
 
 import androidx.multidex.MultiDexApplication;
 
+import com.github.mr5.live.util.Log;
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
 import com.github.tvbox.osc.data.AppDataManager;
@@ -15,6 +16,10 @@ import com.orhanobut.hawk.Hawk;
 import me.jessyan.autosize.AutoSizeConfig;
 import me.jessyan.autosize.unit.Subunits;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 /**
  * @author pj567
  * @date :2020/12/17
@@ -25,9 +30,15 @@ public class App extends MultiDexApplication {
 
     @Override
     public void onCreate() {
+
         super.onCreate();
         instance = this;
         initParams();
+
+        if (Hawk.get(HawkConfig.DEBUG_OPEN, false)) {
+            logCatToFiles();
+        }
+
         // OKGo
         OkGoHelper.init();
         // 初始化Web服务器
@@ -43,6 +54,23 @@ public class App extends MultiDexApplication {
                 .setSupportSP(false)
                 .setSupportSubunits(Subunits.MM);
         PlayerHelper.init();
+    }
+
+    private static void logCatToFiles() {
+        try {
+            Process process = Runtime.getRuntime().exec("logcat -d");
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            StringBuilder log = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                log.append(line).append("\r\n");
+            }
+            Log.writeLogToFile(log.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initParams() {

@@ -13,6 +13,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -20,6 +21,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Cache;
+import okhttp3.ConnectionSpec;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.dnsoverhttps.DnsOverHttps;
@@ -167,6 +169,7 @@ public class OkGoHelper {
                     };
             final SSLSocketFactory sslSocketFactory = new SSLSocketFactoryCompat(trustAllCert);
             builder.sslSocketFactory(sslSocketFactory, trustAllCert);
+            builder.connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS));
             builder.hostnameVerifier(HttpsUtils.UnSafeHostnameVerifier);
         } catch (Exception e) {
             throw new RuntimeException(e);
