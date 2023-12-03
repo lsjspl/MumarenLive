@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.github.mr5.live.util.AppConfig;
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.mr5.live.bean.IJKCode;
@@ -263,7 +264,7 @@ public class VodController extends BaseController {
             public void onClick(View view) {
                 try {
                     String ijk = mPlayerConfig.getString("ijk");
-                    List<IJKCode> codecs = ChannelHandler.ijkCodes;
+                    List<IJKCode> codecs = AppConfig.getInstance().getIjkCodes();
                     for (int i = 0; i < codecs.size(); i++) {
                         if (ijk.equals(codecs.get(i).getName())) {
                             if (i >= codecs.size() - 1)

@@ -6,7 +6,7 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.github.tvbox.osc.R;
-import com.github.mr5.live.bean.LiveChannel;
+import com.github.mr5.live.bean.Channel;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * @date :2021/1/12
  * @description:
  */
-public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannel, BaseViewHolder> {
+public class LiveChannelItemAdapter extends BaseQuickAdapter<Channel, BaseViewHolder> {
     private int selectedChannelIndex = -1;
     private int focusedChannelIndex = -1;
 
@@ -24,7 +24,7 @@ public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannel, BaseVi
     }
 
     @Override
-    protected void convert(BaseViewHolder holder, LiveChannel item) {
+    protected void convert(BaseViewHolder holder, Channel item) {
         TextView tvChannelNum = holder.getView(R.id.tvChannelNum);
         TextView tvChannel = holder.getView(R.id.tvChannelName);
         tvChannelNum.setText(String.format("%s", item.getNum()));

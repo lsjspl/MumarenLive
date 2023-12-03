@@ -13,6 +13,7 @@ import com.github.mr5.live.util.PlayerHelper;
 import com.kingja.loadsir.core.LoadSir;
 import com.orhanobut.hawk.Hawk;
 
+import lombok.Getter;
 import me.jessyan.autosize.AutoSizeConfig;
 import me.jessyan.autosize.unit.Subunits;
 
@@ -26,6 +27,7 @@ import java.io.InputStreamReader;
  * @description:
  */
 public class App extends MultiDexApplication {
+    @Getter
     private static App instance;
 
     @Override
@@ -58,6 +60,7 @@ public class App extends MultiDexApplication {
 
     private static void logCatToFiles() {
         try {
+            Log.deleteLogFile();
             Process process = Runtime.getRuntime().exec("logcat -d");
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()));
@@ -82,7 +85,4 @@ public class App extends MultiDexApplication {
         }
     }
 
-    public static App getInstance() {
-        return instance;
-    }
 }

@@ -10,10 +10,10 @@ import java.util.ArrayList;
  * password : 分组密码
  */
 @Data
-public class LiveChannelGroup {
+public class ChannelGroup {
     private int index;
     private String name;
     private String groupPassword;
-    private ArrayList<LiveChannel> liveChannels;
+    private ArrayList<Channel> channels;
 
 }

@@ -42,6 +42,15 @@ public class Log {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
     }
 
+    public  static  void deleteLogFile(){
+        File externalStorageDir = Environment.getExternalStorageDirectory();
+        File logsDir = new File(externalStorageDir, "Download");
+        File logFile = new File(logsDir, "mumarenlog.txt");
+        if(logFile.exists()){
+            logFile.delete();
+        }
+    }
+
     // 将日志写入文件
     public static void writeLogToFile(String logMessage) {
         try {
@@ -55,7 +64,7 @@ public class Log {
             }
 
             // 生成一个唯一的文件名，使用时间戳
-            String fileName = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date()) + ".txt";
+            String fileName =  "mumarenlog.txt";
 
             // 创建日志文件
             File logFile = new File(logsDir, fileName);
@@ -74,67 +83,5 @@ public class Log {
         }
     }
 
-
-    public static File createFile(String directoryName, String fileName) {
-        File directory;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // 使用 MediaStore API 在外部存储的 Downloads 目录下创建文件
-            directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        } else {
-            // 在 Android 10 以下版本可以继续使用旧的方式
-            directory = new File(Environment.getExternalStorageDirectory(), directoryName);
-        }
-
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        File file = new File(directory, fileName);
-
-        try {
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return file;
-    }
-
-    // 在 Android 10 上使用 MediaStore API 写入文件
-    public static Uri writeToFile(Context context, String directoryName, String fileName, String content) {
-        File file = createFile(directoryName, fileName);
-        Uri uri = null;
-
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
-                contentValues.put(MediaStore.Downloads.MIME_TYPE, "text/plain");
-                contentValues.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + File.separator + directoryName);
-
-                uri = context.getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
-
-                if (uri != null) {
-                    try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
-                        if (outputStream != null) {
-                            outputStream.write(content.getBytes());
-                        }
-                    }
-                }
-            } else {
-                // 在 Android 10 以下版本可以继续使用旧的方式
-                try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-                    fileOutputStream.write(content.getBytes());
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return uri;
-    }
 
 }

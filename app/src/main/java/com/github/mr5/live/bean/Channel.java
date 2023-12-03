@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * sourceNum : 频道源总数
  */
 @Data
-public class LiveChannel {
+public class Channel {
 
     private int index;
     private int num;

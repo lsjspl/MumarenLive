@@ -6,7 +6,7 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.github.tvbox.osc.R;
-import com.github.mr5.live.bean.LiveChannelGroup;
+import com.github.mr5.live.bean.ChannelGroup;
 
 import java.util.ArrayList;
 
@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * @date :2021/1/12
  * @description:
  */
-public class LiveChannelGroupAdapter extends BaseQuickAdapter<LiveChannelGroup, BaseViewHolder> {
+public class LiveChannelGroupAdapter extends BaseQuickAdapter<ChannelGroup, BaseViewHolder> {
     private int selectedGroupIndex = -1;
     private int focusedGroupIndex = -1;
 
@@ -25,7 +25,7 @@ public class LiveChannelGroupAdapter extends BaseQuickAdapter<LiveChannelGroup, 
     }
 
     @Override
-    protected void convert(BaseViewHolder holder, LiveChannelGroup item) {
+    protected void convert(BaseViewHolder holder, ChannelGroup item) {
         TextView tvGroupName = holder.getView(R.id.tvChannelGroupName);
         tvGroupName.setText(item.getName());
         int groupIndex = item.getIndex();

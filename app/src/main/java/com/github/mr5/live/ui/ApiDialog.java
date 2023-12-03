@@ -40,6 +40,8 @@ import me.jessyan.autosize.utils.AutoSizeUtils;
  * @since 2020/12/27
  */
 public class ApiDialog extends BaseDialog {
+
+
     private ImageView ivQRCode;
     private TextView tvAddress;
     private EditText inputApi;

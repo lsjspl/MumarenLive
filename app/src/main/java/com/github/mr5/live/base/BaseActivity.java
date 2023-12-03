@@ -116,6 +116,7 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
         }
     }
 
+
     protected void showEmpty() {
         if (null != mLoadService) {
             mLoadService.showCallback(EmptyCallback.class);
