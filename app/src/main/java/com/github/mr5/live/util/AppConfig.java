@@ -205,10 +205,6 @@ public class AppConfig {
             String o2=c2.getName();
             int result = collator.compare(o1, o2);
 
-            if (result != 0) {
-                return result;
-            }
-
             String[] parts1 = o1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
             String[] parts2 = o2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
 
@@ -251,6 +247,7 @@ public class AppConfig {
             index = 0;
 
             for (Channel channel : group.getChannels()) {
+                Log.d(num+"");
                 channel.setNum(num++);
                 channel.setIndex(index++);
                 channel.setGroupIndex(group.getIndex());

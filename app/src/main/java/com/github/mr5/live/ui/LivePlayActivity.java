@@ -513,10 +513,10 @@ public class LivePlayActivity extends BaseActivity {
         ArrayList<Channel> channels = getLiveChannels(channelGroupIndex);
         currentChannel = channels.get(channels.size() > liveChannelIndex ? liveChannelIndex : 0);
         if (!changeSource) {
-            ChannelHandler.saveUseSource(currentChannel);
             livePlayerManager.getLiveChannelPlayer(mVideoView, currentChannel.getName());
         }
 
+        ChannelHandler.saveUseSource(currentChannel);
         Hawk.put(HawkConfig.LIVE_CHANNEL, currentChannel);
 
         mVideoView.setUrl(currentChannel.getUrl());
