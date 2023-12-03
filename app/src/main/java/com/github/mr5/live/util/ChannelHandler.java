@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.lzy.okgo.OkGo;
 import com.orhanobut.hawk.Hawk;
 import lombok.Data;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.*;
@@ -25,6 +26,11 @@ import java.util.regex.Pattern;
 public class ChannelHandler {
 
     static String[] splitFixs = new String[]{",", "，", "http:", "https:", "rtmp:"};
+
+    @Getter
+    static String[] updateTime = new String[]{"不缓存", "1天", "3天", "7天", "15天", "1个月", "3个月", "半年", "不更新"};
+    static Long[] updateTimeIndex = new Long[]{0L, 1L, 3L, 7L, 15L, 30L, 90L, 180L, 3000L};
+    static HashMap<Integer, Integer> useSource = getUseSource();
 
     static {
         getIjk();
@@ -54,6 +60,7 @@ public class ChannelHandler {
                     }
 
                     if (!AppConfig.getInstance().getChannelGroupList().isEmpty()) {
+                        fillUseSource();
                         return;
                     }
                 }
@@ -80,6 +87,14 @@ public class ChannelHandler {
             }
 
         });
+    }
+
+    private static void fillUseSource() {
+        for (ChannelGroup channelGroup : AppConfig.getInstance().getChannelGroupList()) {
+            for (Channel channel : channelGroup.getChannels()) {
+                channel.setSourceIndex(useSource.containsKey(channel.getNum()) ? useSource.get(channel.getNum()) : 0);
+            }
+        }
     }
 
     private static List<ChannelGroup> handler(String url) throws IOException {
@@ -160,10 +175,12 @@ public class ChannelHandler {
                 groupMap.put(groupName, group);
             }
 
+            Log.d(channelInfo.toString());
+
 
             String nameClean = name.trim().replaceAll("\\s|-|_", "").toLowerCase();
             if (liveMap.containsKey(nameClean)) {
-                channel = liveMap.get(name.trim().toLowerCase());
+                channel = liveMap.get(nameClean);
                 channel.getUrls().add(url);
                 channel.getSourceNames().add("源" + channel.getUrls().size());
             } else {
@@ -195,8 +212,6 @@ public class ChannelHandler {
         Channel channel;
 
         Map<String, Channel> liveMap = new HashMap<>();
-
-        int index = 0;
 
         boolean isStart = false;
 
@@ -240,13 +255,15 @@ public class ChannelHandler {
                 String name = toSimplifiedChinese(item.split(split)[0].trim().toLowerCase());
                 String url = appendIndex > 1 ? item.split(split)[1] : split + item.split(split)[1];
 
-                if (liveMap.containsKey(name)) {
-                    channel = liveMap.get(name);
+                String nameClean=name.replaceAll("\\s|-|_", "").toLowerCase();
+
+                if (liveMap.containsKey(nameClean)) {
+                    channel = liveMap.get(nameClean);
                     channel.getUrls().add(url);
                     channel.getSourceNames().add("源" + channel.getUrls().size());
                 } else {
                     channel = new Channel();
-                    liveMap.put(name, channel);
+                    liveMap.put(nameClean, channel);
                     channel.setName(name);
                     channel.setUrls(new ArrayList<>());
                     channel.getUrls().add(url);
@@ -267,8 +284,14 @@ public class ChannelHandler {
         Set<Future<List<ChannelGroup>>> futures = new HashSet<>();
 
         String[] bodys = body.split("\n|\r\n");
+        boolean isBanStart = false;
+        List<String> banUrls = new ArrayList<>();
         for (String line : bodys) {
             if (line.contains("mumaren") || line.trim().isEmpty()) {
+            } else if (line.startsWith("#ban")) {
+                isBanStart = true;
+            } else if (isBanStart) {
+                banUrls.add(line.toLowerCase().trim());
             } else {
                 futures.add(AppConfig.getInstance().getExecutors().submit(() -> handler(line)));
             }
@@ -320,6 +343,10 @@ public class ChannelHandler {
                         if (oldChannelMap.containsKey(tmpName)) {
                             Channel oldChannel = oldChannelMap.get(tmpName);
 
+                            if (removeBanUrl(channel, banUrls).isEmpty()) {
+                                break;
+                            }
+
                             oldChannel.getUrls().addAll(channel.getUrls());
                             oldChannel.getSourceNames().addAll(channel.getSourceNames());
 
@@ -328,6 +355,9 @@ public class ChannelHandler {
                             }
 
                         } else {
+                            if (removeBanUrl(channel, banUrls).isEmpty()) {
+                                break;
+                            }
                             oldChannelMap.put(channel.getName(), channel);
                         }
 
@@ -343,6 +373,32 @@ public class ChannelHandler {
 
 
         return new ArrayList<>(groupMap.values());
+    }
+
+    private static List<String> removeBanUrl(Channel channel, List<String> banList) {
+
+        if (banList.isEmpty()) {
+            return banList;
+        }
+
+        List<String> urls = channel.getUrls();
+        List<String> sources = channel.getSourceNames();
+
+        int index = 0;
+        Iterator<String> iterator = urls.iterator();
+        while (iterator.hasNext()) {
+            index++;
+            String currentElement = iterator.next().trim().toLowerCase();
+            for (String ban : banList) {
+                if (currentElement.contains(ban)) {
+                    iterator.remove();
+                    sources.remove(index);
+                }
+            }
+
+        }
+
+        return urls;
     }
 
     private static void extractInfoFromExtInf(String line, ChannelInfo channel) {
@@ -375,30 +431,34 @@ public class ChannelHandler {
         channel.setTitle(line.contains(",") ? line.substring(line.lastIndexOf(",") + 1) : null);
     }
 
+
     private static boolean isUseCache() {
-        return System.currentTimeMillis() - Hawk.<Long>get(HawkConfig.CACHE_CHANNEL_RESULT_TIME, System.currentTimeMillis()) < 24 * 60 * 60 * 1000 * 7;
+        return System.currentTimeMillis() - Hawk.<Long>get(HawkConfig.CACHE_CHANNEL_RESULT_TIME, System.currentTimeMillis()) <
+                updateTimeIndex[Hawk.<Integer>get(HawkConfig.CACHE_CHANNEL_RESULT_UPDATE_TIME, 2)] * 24 * 60 * 60 * 1000 * 7;
     }
 
     public static void clearCache() {
         //更改配置的时候重新加载缓存
-        Hawk.put(HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT, null);
-        Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT, null);
-        Hawk.put(HawkConfig.LIVE_CHANNEL, null);
+        Hawk.delete(HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT);
+        Hawk.delete(HawkConfig.CACHE_CHANNEL_RESULT);
+        Hawk.delete(HawkConfig.LIVE_CHANNEL);
+        Hawk.delete(HawkConfig.CACHE_CHANNEL_USED_SOURCE);
     }
 
     public static String toSimplifiedChinese(String traditionalChinese) {
         return ZhConverterUtil.convertToSimple(traditionalChinese);
     }
 
-    public static void saveChange(Channel currentChannel) {
 
-//        AppConfig.getInstance().getChannelGroupList().get(currentChannel.getGroupIndex())
-//                .getChannels()
-//                .get(currentChannel.getIndex())
-//                .setSourceIndex(currentChannel.getSourceIndex());
-//        int groupType = Hawk.<Integer>get(HawkConfig.CHANNEL_GROUP_TYPE, 1);
-//        Hawk.put(groupType == 1 ? HawkConfig.CACHE_CHANNEL_LAYOUT_RESULT : HawkConfig.CACHE_CHANNEL_RESULT, AppConfig.getInstance().getChannelGroupList());
+    public static void saveUseSource(Channel currentChannel) {
+        useSource.put(currentChannel.getNum(), currentChannel.getSourceIndex());
+        Hawk.put(HawkConfig.CACHE_CHANNEL_USED_SOURCE, useSource);
     }
+
+    public static HashMap<Integer, Integer> getUseSource() {
+        return Hawk.get(HawkConfig.CACHE_CHANNEL_USED_SOURCE, new HashMap<>());
+    }
+
 
     public static void getIjk() {
         boolean foundOldSelect = false;

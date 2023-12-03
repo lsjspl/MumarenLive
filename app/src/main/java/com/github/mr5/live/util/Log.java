@@ -83,5 +83,23 @@ public class Log {
         }
     }
 
+    public static void logCatToFile() {
+        try {
+            Log.deleteLogFile();
+            Process process = Runtime.getRuntime().exec("logcat -d");
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            StringBuilder log = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                log.append(line).append("\r\n");
+            }
+            Log.writeLogToFile(log.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

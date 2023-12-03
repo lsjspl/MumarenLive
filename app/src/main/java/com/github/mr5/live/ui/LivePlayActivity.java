@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -41,6 +43,9 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.mr5.live.util.HawkConfig;
 import com.github.mr5.live.util.Log;
 import com.github.mr5.live.util.ChannelHandler;
+import com.hjq.permissions.OnPermissionCallback;
+import com.hjq.permissions.Permission;
+import com.hjq.permissions.XXPermissions;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
@@ -129,18 +134,23 @@ public class LivePlayActivity extends BaseActivity {
         tvNumView = findViewById(R.id.tvNumView);
 
         showLoading();
-        ControlManager.get().startServer();
 
-        initVideoView();
-        initChannelGroupView();
-        initLiveChannelView();
-        initSettingGroupView();
-        initSettingItemView();
-        livePlayerManager.init(mVideoView);
-        initLiveSettingGroupList();
-        buildDialog();
-        loadChannels(Hawk.get(HawkConfig.API_URL, ""));
+        try {
+            ControlManager.get().startServer();
 
+            initVideoView();
+            initChannelGroupView();
+            initLiveChannelView();
+            initSettingGroupView();
+            initSettingItemView();
+            livePlayerManager.init(mVideoView);
+            initLiveSettingGroupList();
+            buildDialog();
+            loadChannels(Hawk.get(HawkConfig.API_URL, ""));
+        } catch (Exception e) {
+            Log.e("",e);
+            dialog.show();
+        }
         Log.d("init");
     }
 
@@ -198,6 +208,8 @@ public class LivePlayActivity extends BaseActivity {
             }
         }
 
+        //todo 妥协代码
+
         if (currentChannel == null) {
             for (ChannelGroup channelGroup : channelGroupList) {
                 if (!channelGroup.getChannels().isEmpty()) {
@@ -206,7 +218,10 @@ public class LivePlayActivity extends BaseActivity {
                 }
             }
         } else {
-            selectChannelGroup(currentChannel.getGroupIndex(), false, currentChannel.getIndex());
+            int groupIndex = currentChannel.getGroupIndex();
+            int channelIndex = currentChannel.getIndex();
+            currentChannel = null;
+            selectChannelGroup(groupIndex, false, channelIndex);
         }
     }
 
@@ -229,43 +244,51 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            int keyCode = event.getKeyCode();
-            if (keyCode == KeyEvent.KEYCODE_MENU) {
-                showSettingGroup();
-            } else if (!isListOrSettingLayoutVisible()) {
-                switch (keyCode) {
-                    case KeyEvent.KEYCODE_DPAD_UP:
-                        if (Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false))
-                            playNext();
-                        else
-                            playPrevious();
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_DOWN:
-                        if (Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false)) {
-                            Log.d("播放上一个");
-                            playPrevious();
-                        } else {
-                            Log.d("播放下一个");
-                            playNext();
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_LEFT:
-                        Log.d("播放上一个源");
-                        playPreSource();
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_RIGHT:
-                        Log.d("播放下一个源");
-                        playNextSource();
-                        break;
-                    case KeyEvent.KEYCODE_DPAD_CENTER:
-                    case KeyEvent.KEYCODE_ENTER:
-                    case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                        showChannelList();
-                        break;
+
+        try {
+
+
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                int keyCode = event.getKeyCode();
+                if (keyCode == KeyEvent.KEYCODE_MENU) {
+                    showSettingGroup();
+                } else if (!isListOrSettingLayoutVisible()) {
+                    switch (keyCode) {
+                        case KeyEvent.KEYCODE_DPAD_UP:
+                            if (Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false))
+                                playNext();
+                            else
+                                playPrevious();
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_DOWN:
+                            if (Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false)) {
+                                Log.d("播放上一个");
+                                playPrevious();
+                            } else {
+                                Log.d("播放下一个");
+                                playNext();
+                            }
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_LEFT:
+                            Log.d("播放上一个源");
+                            playPreSource();
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_RIGHT:
+                            Log.d("播放下一个源");
+                            playNextSource();
+                            break;
+                        case KeyEvent.KEYCODE_DPAD_CENTER:
+                        case KeyEvent.KEYCODE_ENTER:
+                        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                            showChannelList();
+                            break;
+                    }
                 }
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
             }
-        } else if (event.getAction() == KeyEvent.ACTION_UP) {
+        } catch (Exception e) {
+            Log.e(",",e);
+            dialog.show();
         }
         return super.dispatchKeyEvent(event);
     }
@@ -306,7 +329,7 @@ public class LivePlayActivity extends BaseActivity {
 
     private void buildDialog() {
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
-        dialog = new TipDialog(LivePlayActivity.this, "没有加载到数据，请选择", "重试", "设置", new TipDialog.OnListener() {
+        dialog = new TipDialog(LivePlayActivity.this, "系统异常或者频道信息为空，请选择：", "重试", "设置", new TipDialog.OnListener() {
             @Override
             public void left() {
                 dialog.hide();
@@ -478,7 +501,7 @@ public class LivePlayActivity extends BaseActivity {
     };
 
     private boolean playChannel(int channelGroupIndex, int liveChannelIndex, boolean changeSource) {
-        if (currentChannel!=null && (channelGroupIndex == currentChannel.getGroupIndex()
+        if (currentChannel != null && (channelGroupIndex == currentChannel.getGroupIndex()
                 && liveChannelIndex == currentChannel.getIndex() && !changeSource)
                 || (changeSource && currentChannel.getSourceIndex() == 0)) {
             showChannelInfo();
@@ -490,12 +513,12 @@ public class LivePlayActivity extends BaseActivity {
         ArrayList<Channel> channels = getLiveChannels(channelGroupIndex);
         currentChannel = channels.get(channels.size() > liveChannelIndex ? liveChannelIndex : 0);
         if (!changeSource) {
+            ChannelHandler.saveUseSource(currentChannel);
             livePlayerManager.getLiveChannelPlayer(mVideoView, currentChannel.getName());
         }
 
         Hawk.put(HawkConfig.LIVE_CHANNEL, currentChannel);
 
-        ChannelHandler.saveChange(currentChannel);
         mVideoView.setUrl(currentChannel.getUrl());
         showChannelInfo();
         mVideoView.start();
@@ -894,33 +917,34 @@ public class LivePlayActivity extends BaseActivity {
 
     private void clickSettingItem(int position) {
         int settingGroupIndex = liveSettingGroupAdapter.getSelectedGroupIndex();
-        if (settingGroupIndex < 4) {
-            if (position == liveSettingItemAdapter.getSelectedItemIndex())
-                return;
-            liveSettingItemAdapter.selectItem(position, true, true);
-        }
+
         switch (settingGroupIndex) {
             case 0://线路切换
+                selectSetItem(position);
                 currentChannel.setSourceIndex(position);
                 playChannel(currentChannel.getGroupIndex(), currentChannel.getIndex(), true);
                 break;
             case 1://画面比例
+                selectSetItem(position);
                 livePlayerManager.changeLivePlayerScale(mVideoView, position, currentChannel.getName());
                 break;
             case 2://播放解码
+                selectSetItem(position);
                 mVideoView.release();
                 livePlayerManager.changeLivePlayerType(mVideoView, position, currentChannel.getName());
                 mVideoView.setUrl(currentChannel.getUrl());
                 mVideoView.start();
                 break;
             case 3://超时换源
+                selectSetItem(position);
                 Hawk.put(HawkConfig.LIVE_CONNECT_TIMEOUT, position);
                 break;
             case 4://
+                selectSetItem(position);
                 Hawk.put(HawkConfig.CHANNEL_GROUP_TYPE, position);
-                finish();
                 ChannelHandler.clearCache();
                 jumpActivity(this.getClass());
+                finish();
                 break;
             case 5:
                 boolean select = false;
@@ -946,12 +970,70 @@ public class LivePlayActivity extends BaseActivity {
                 }
                 liveSettingItemAdapter.selectItem(position, select, false);
                 break;
-            case 6://系统设置
-                setDialog.show();
+            case 6:
+                selectSetItem(position);
+                Toast.makeText(App.getInstance(), "修改源更新时间", Toast.LENGTH_SHORT).show();
+                Hawk.put(HawkConfig.CACHE_CHANNEL_RESULT_UPDATE_TIME, position);
+                break;
+            case 7://系统设置
+                boolean sysSelect = false;
+                switch (position) {
+                    case 0:
+                        selectSetItem(position);
+                        setDialog.show();
+                        break;
+                    case 1:
+                        sysSelect = !Hawk.get(HawkConfig.DEBUG_OPEN, false);
+                        Hawk.put(HawkConfig.DEBUG_OPEN, sysSelect);
+                        if (sysSelect) {
+                            getPPPPPP(this);
+                            Log.logCatToFile();
+                            Toast.makeText(App.getInstance(), "开启DEBUG", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(App.getInstance(), "关闭DEBUG", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                }
+                liveSettingItemAdapter.selectItem(position, sysSelect, false);
                 break;
         }
         mHandler.removeCallbacks(mHideSettingLayoutRun);
         mHandler.postDelayed(mHideSettingLayoutRun, 5000);
+    }
+
+    private boolean selectSetItem(int position) {
+        if (position == liveSettingItemAdapter.getSelectedItemIndex())
+            return true;
+        liveSettingItemAdapter.selectItem(position, true, true);
+        return false;
+    }
+
+
+    private void getPPPPPP(Context context) {
+        if (XXPermissions.isGranted(context, Permission.Group.STORAGE)) {
+            Toast.makeText(context, "已获得存储权限", Toast.LENGTH_SHORT).show();
+        } else {
+            XXPermissions.with(context)
+                    .permission(Permission.Group.STORAGE)
+                    .request(new OnPermissionCallback() {
+                        @Override
+                        public void onGranted(List<String> permissions, boolean all) {
+                            if (all) {
+                                Toast.makeText(context, "已获得存储权限", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onDenied(List<String> permissions, boolean never) {
+                            if (never) {
+                                Toast.makeText(context, "获取存储权限失败,请在系统设置中开启", Toast.LENGTH_SHORT).show();
+                                XXPermissions.startPermissionActivity(context, permissions);
+                            } else {
+                                Toast.makeText(context, "获取存储权限失败", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
     }
 
 
@@ -960,21 +1042,23 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void initLiveSettingGroupList() {
-        ArrayList<String> groupNames = new ArrayList<>(Arrays.asList("线路选择", "画面比例", "播放解码", "超时换源", "频道分组", "偏好设置", "系统设置"));
+        ArrayList<String> groupNames = new ArrayList<>(Arrays.asList("线路选择", "画面比例", "播放解码", "超时换源", "频道分组", "偏好设置", "更新间隔", "系统设置"));
         ArrayList<ArrayList<String>> itemsArrayList = new ArrayList<>();
         ArrayList<String> sourceItems = new ArrayList<>();
         ArrayList<String> scaleItems = new ArrayList<>(Arrays.asList("默认", "16:9", "4:3", "填充", "原始", "裁剪"));
         ArrayList<String> playerDecoderItems = new ArrayList<>(Arrays.asList("系统", "ijk硬解", "ijk软解", "exo"));
         ArrayList<String> timeoutItems = new ArrayList<>(Arrays.asList("5s", "10s", "15s", "20s", "25s", "30s"));
         ArrayList<String> personalSettingItems = new ArrayList<>(Arrays.asList("显示时间", "显示网速", "换台反转", "跨选分类"));
-        ArrayList<String> settingItems = new ArrayList<>(Arrays.asList("设置"));
+        ArrayList<String> settingItems = new ArrayList<>(Arrays.asList("设置源", "Debug"));
         ArrayList<String> channelGroupItems = new ArrayList<>(Arrays.asList("源默认", "自定义"));
+        ArrayList<String> updateSourceTime = new ArrayList<>(Arrays.asList(ChannelHandler.getUpdateTime()));
         itemsArrayList.add(sourceItems);
         itemsArrayList.add(scaleItems);
         itemsArrayList.add(playerDecoderItems);
         itemsArrayList.add(timeoutItems);
         itemsArrayList.add(channelGroupItems);
         itemsArrayList.add(personalSettingItems);
+        itemsArrayList.add(updateSourceTime);
         itemsArrayList.add(settingItems);
 
 
@@ -993,12 +1077,28 @@ public class LivePlayActivity extends BaseActivity {
             liveSettingGroup.setLiveSettingItems(liveSettingItemList);
             liveSettingGroupList.add(liveSettingGroup);
         }
-        liveSettingGroupList.get(3).getLiveSettingItems().get(Hawk.get(HawkConfig.LIVE_CONNECT_TIMEOUT, 1)).setItemSelected(true);
-//        liveSettingGroupList.get(4).getLiveSettingItems().get(Hawk.get(HawkConfig.CHANNEL_GROUP_TYPE, 1)).setItemSelected(true);
-        liveSettingGroupList.get(5).getLiveSettingItems().get(0).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_TIME, false));
-        liveSettingGroupList.get(5).getLiveSettingItems().get(1).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_NET_SPEED, false));
-        liveSettingGroupList.get(5).getLiveSettingItems().get(2).setItemSelected(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false));
-        liveSettingGroupList.get(5).getLiveSettingItems().get(3).setItemSelected(Hawk.get(HawkConfig.LIVE_CROSS_GROUP, false));
+        //"线路选择", "画面比例", "播放解码", "超时换源", "频道分组", "偏好设置","更新间隔", "系统设置"
+        int index = 0;//线路选择
+        //do something
+        index++;//画面比例
+        //do something
+        index++;//播放解码
+        //do something
+        index++;//超时换源
+        liveSettingGroupList.get(index).getLiveSettingItems().get(Hawk.get(HawkConfig.LIVE_CONNECT_TIMEOUT, 1)).setItemSelected(true);
+        index++;//频道分组
+        liveSettingGroupList.get(index).getLiveSettingItems().get(Hawk.get(HawkConfig.CHANNEL_GROUP_TYPE, 1)).setItemSelected(true);
+        index++;//偏好设置
+        liveSettingGroupList.get(index).getLiveSettingItems().get(0).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_TIME, false));
+        liveSettingGroupList.get(index).getLiveSettingItems().get(1).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_NET_SPEED, false));
+        liveSettingGroupList.get(index).getLiveSettingItems().get(2).setItemSelected(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false));
+        liveSettingGroupList.get(index).getLiveSettingItems().get(3).setItemSelected(Hawk.get(HawkConfig.LIVE_CROSS_GROUP, false));
+        index++;//更新间隔
+        liveSettingGroupList.get(index).getLiveSettingItems().get(Hawk.get(HawkConfig.CACHE_CHANNEL_RESULT_UPDATE_TIME, 2)).setItemSelected(true);
+        index++;//系统设置
+        liveSettingGroupList.get(index).getLiveSettingItems().get(1).setItemSelected(Hawk.get(HawkConfig.DEBUG_OPEN, false));
+
+
     }
 
     private void loadCurrentSourceList() {

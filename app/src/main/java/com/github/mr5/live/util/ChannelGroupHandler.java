@@ -93,6 +93,7 @@ public class ChannelGroupHandler {
 
         List<ChannelGroup> results = new ArrayList<>(tmp.values());
 
+
         AppConfig.getInstance().sort(results);
 
         return results;

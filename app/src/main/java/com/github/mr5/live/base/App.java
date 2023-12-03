@@ -1,15 +1,15 @@
 package com.github.mr5.live.base;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import androidx.multidex.MultiDexApplication;
 
-import com.github.mr5.live.util.Log;
+import com.github.mr5.live.util.*;
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
 import com.github.tvbox.osc.data.AppDataManager;
 import com.github.tvbox.osc.server.ControlManager;
-import com.github.mr5.live.util.HawkConfig;
-import com.github.mr5.live.util.OkGoHelper;
-import com.github.mr5.live.util.PlayerHelper;
 import com.kingja.loadsir.core.LoadSir;
 import com.orhanobut.hawk.Hawk;
 
@@ -38,7 +38,7 @@ public class App extends MultiDexApplication {
         initParams();
 
         if (Hawk.get(HawkConfig.DEBUG_OPEN, false)) {
-            logCatToFiles();
+            Log.logCatToFile();
         }
 
         // OKGo
@@ -58,31 +58,37 @@ public class App extends MultiDexApplication {
         PlayerHelper.init();
     }
 
-    private static void logCatToFiles() {
-        try {
-            Log.deleteLogFile();
-            Process process = Runtime.getRuntime().exec("logcat -d");
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
 
-            StringBuilder log = new StringBuilder();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                log.append(line).append("\r\n");
-            }
-            Log.writeLogToFile(log.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void initParams() {
         // Hawk
         Hawk.init(this).build();
-        Hawk.put(HawkConfig.DEBUG_OPEN, false);
         if (!Hawk.contains(HawkConfig.PLAY_TYPE)) {
             Hawk.put(HawkConfig.PLAY_TYPE, 1);
         }
+
+        try {
+            PackageInfo packageInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), 0);
+            String versionName = packageInfo.versionName;
+            int versionCode = packageInfo.versionCode;
+
+            String version = versionName + versionCode;
+            String oldVersion = Hawk.get(HawkConfig.Version, "");
+
+            Log.d("version" + version + ":" + oldVersion);
+
+            if (!oldVersion.equals(versionName + versionCode)) {
+                ChannelHandler.clearCache();
+                Hawk.put(HawkConfig.Version, version);
+            }
+
+
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
+
 
 }

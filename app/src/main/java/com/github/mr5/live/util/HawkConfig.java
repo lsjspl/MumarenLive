@@ -34,4 +34,7 @@ public class HawkConfig {
     public static final String CACHE_CHANNEL_LAYOUT_RESULT = "CACHE_CHANNEL_LAYOUT_RESULT";
     public static final String CACHE_CHANNEL_RESULT = "CACHE_CHANNEL_RESULT";
     public static final String CACHE_CHANNEL_RESULT_TIME = "CACHE_CHANNEL_RESULT_TIME";
+    public static final String CACHE_CHANNEL_RESULT_UPDATE_TIME = "CACHE_CHANNEL_RESULT_UPDATE_TIME";
+    public static final String CACHE_CHANNEL_USED_SOURCE = "CACHE_CHANNEL_USED_SOURCE";
+    public static String Version="Version";
 }

@@ -200,25 +200,41 @@ public class AppConfig {
         final Collator collator = Collator.getInstance(Locale.CHINA);
 
         @Override
-        public int compare(Channel s1, Channel s2) {
-            // 判断字符串是否包含数字或英文
-            boolean hasNumericOrEnglish1 = s1.getName().matches(".*[0-9a-zA-Z]+.*");
-            boolean hasNumericOrEnglish2 = s1.getName().matches(".*[0-9a-zA-Z]+.*");
+        public int compare(Channel c1, Channel c2) {
+            String o1=c1.getName();
+            String o2=c2.getName();
+            int result = collator.compare(o1, o2);
 
-            // 如果两个字符串都包含数字或英文，则按照 Collator 进行比较
-            if (hasNumericOrEnglish1 && hasNumericOrEnglish2) {
-                return collator.compare(s1.getName(), s2.getName());
+            if (result != 0) {
+                return result;
             }
 
-            // 数字和英文优先于中文
-            if (hasNumericOrEnglish1 && !hasNumericOrEnglish2) {
-                return -1;
-            } else if (!hasNumericOrEnglish1 && hasNumericOrEnglish2) {
-                return 1;
-            } else {
-                // 使用 Collator 进行比较
-                return collator.compare(s1.getName(), s2.getName());
+            String[] parts1 = o1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+            String[] parts2 = o2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+
+            int len = Math.min(parts1.length, parts2.length);
+
+            for (int i = 0; i < len; i++) {
+                if (isNumeric(parts1[i]) && isNumeric(parts2[i])) {
+                    result = Integer.compare(Integer.parseInt(parts1[i]), Integer.parseInt(parts2[i]));
+
+                    if (result != 0) {
+                        return result;
+                    }
+                } else {
+                    result = collator.compare(parts1[i], parts2[i]);
+
+                    if (result != 0) {
+                        return result;
+                    }
+                }
             }
+
+            return 0;
+        }
+
+        private boolean isNumeric(String s) {
+            return s.matches("\\d+");
         }
     };
 
