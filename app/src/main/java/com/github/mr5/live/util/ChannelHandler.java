@@ -61,6 +61,7 @@ public class ChannelHandler {
 
                     if (!AppConfig.getInstance().getChannelGroupList().isEmpty()) {
                         fillUseSource();
+                        Log.d("缓存生效");
                         return;
                     }
                 }
@@ -78,6 +79,8 @@ public class ChannelHandler {
                 } else {
                     AppConfig.getInstance().getChannelGroupList().addAll(groups);
                 }
+
+                Log.d("实时数据");
 
             } catch (Exception e) {
                 AppConfig.getInstance().setLoading(false);
@@ -155,7 +158,6 @@ public class ChannelHandler {
         Map<String, ChannelGroup> groupMap = new HashMap<>();
 
         for (ChannelInfo channelInfo : channelInfos) {
-            Log.d(channelInfo.toString());
             String groupName = toSimplifiedChinese(channelInfo.getGroupTitle());
             String groupTitle = toSimplifiedChinese(channelInfo.getGroupTitle());
             String name = toSimplifiedChinese(channelInfo.getTvgName() == null || channelInfo.getTvgName().isEmpty() ? channelInfo.getTitle() : channelInfo.getTvgName());
@@ -174,9 +176,6 @@ public class ChannelHandler {
                 group.setGroupPassword("");
                 groupMap.put(groupName, group);
             }
-
-            Log.d(channelInfo.toString());
-
 
             String nameClean = name.trim().replaceAll("\\s|-|_", "").toLowerCase();
             if (liveMap.containsKey(nameClean)) {
@@ -402,8 +401,6 @@ public class ChannelHandler {
     }
 
     private static void extractInfoFromExtInf(String line, ChannelInfo channel) {
-
-        Log.d(line);
 
         Pattern pattern = Pattern.compile("(?:tvg-name=\"(.*?)\".*?)?" +
                 "(?:tvg-id=\"(.*?)\".*?)?" +

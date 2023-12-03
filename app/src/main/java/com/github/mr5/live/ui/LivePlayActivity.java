@@ -171,7 +171,6 @@ public class LivePlayActivity extends BaseActivity {
 
         channelGroupList = AppConfig.getInstance().getChannelGroupList();
 
-        Log.d(channelGroupList.toString());
         if (channelGroupList.isEmpty()) {
             dialog.show();
             return;
@@ -675,7 +674,7 @@ public class LivePlayActivity extends BaseActivity {
         if (currentChannel.getSourceIndex() == currentLiveChangeSourceTimes) {
             currentLiveChangeSourceTimes = 0;
             Integer[] groupChannelIndex = getNextChannel(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false) ? -1 : 1);
-            playChannel(groupChannelIndex[0], groupChannelIndex[1], false);
+//            playChannel(groupChannelIndex[0], groupChannelIndex[1], false);
         } else {
             playNextSource();
         }

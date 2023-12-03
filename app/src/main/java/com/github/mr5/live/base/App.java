@@ -75,7 +75,7 @@ public class App extends MultiDexApplication {
             String version = versionName + versionCode;
             String oldVersion = Hawk.get(HawkConfig.Version, "");
 
-            Log.d("version" + version + ":" + oldVersion);
+            Log.d("version:" + version + ":" + oldVersion);
 
             if (!oldVersion.equals(versionName + versionCode)) {
                 ChannelHandler.clearCache();
