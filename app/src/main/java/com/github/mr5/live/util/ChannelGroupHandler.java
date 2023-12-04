@@ -64,10 +64,10 @@ public class ChannelGroupHandler {
     }
 
     private static List<ChannelGroup> handler(LinkedHashMap<String, String> groupRules, List<ChannelGroup> groups) {
-        LinkedHashMap<String, ChannelGroup> tmp = new LinkedHashMap<>();
+        LinkedHashMap<String, ChannelGroup> name2Group = new LinkedHashMap<>();
         for (String key : groupRules.keySet()) {
             ChannelGroup channelGroup = new ChannelGroup();
-            tmp.put(key, channelGroup);
+            name2Group.put(key, channelGroup);
             channelGroup.setChannels(new ArrayList<>());
             channelGroup.setName(key);
             channelGroup.setGroupPassword("");
@@ -80,18 +80,41 @@ public class ChannelGroupHandler {
 
                     String[] values = groupRules.get(key).split(",");
                     for (String value : values) {
-                        if (value.toLowerCase().contains(channel.getName().toLowerCase()) ||
-                                channel.getName().toLowerCase().contains(value.toLowerCase())) {
+                        String tmpValue=value.trim().replaceAll("\\s|-|_", "").toLowerCase();
+                        String tmpName=channel.getName().trim().replaceAll("\\s|-|_", "").toLowerCase();
+                        if (tmpValue.contains(tmpName) ||tmpName.contains(tmpValue)) {
 
-                            channel.setIndex(tmp.get(key).getChannels().size());
-                            tmp.get(key).getChannels().add(channel);
+
+
+                            boolean isfind=false;
+
+                            for(Channel oldChannel:name2Group.get(key).getChannels()){
+                                String oldChannelName=oldChannel.getName().trim().replaceAll("\\s|-|_", "").toLowerCase();
+                                if(oldChannelName.equals(tmpName)){
+                                    isfind=true;
+                                    oldChannel.getUrls().addAll(channel.getUrls());
+                                    oldChannel.getSourceNames().addAll(channel.getSourceNames());
+
+                                    if (oldChannel.getLogoUrl() == null || oldChannel.getLogoUrl().isEmpty()) {
+                                        oldChannel.setLogoUrl(channel.getLogoUrl());
+                                    }
+                                    break;
+                                }
+                            }
+
+                            if(!isfind){
+                                channel.setIndex(name2Group.get(key).getChannels().size());
+                                name2Group.get(key).getChannels().add(channel);
+                            }
+
+                            break;
                         }
                     }
                 }
             }
         }
 
-        List<ChannelGroup> results = new ArrayList<>(tmp.values());
+        List<ChannelGroup> results = new ArrayList<>(name2Group.values());
 
 
         AppConfig.getInstance().sort(results);

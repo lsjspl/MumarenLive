@@ -111,7 +111,7 @@ public class ChannelHandler {
         okhttp3.Response response = OkGo.<String>get(url).execute();
 
         String body = response.body().string();
-
+        Log.d(body);
         if (body.toLowerCase().contains("#extm3u")) {
             return parseM3U(parseM3U(body));
         } else if (body.toLowerCase().contains("#genre#")) {
@@ -160,7 +160,11 @@ public class ChannelHandler {
         for (ChannelInfo channelInfo : channelInfos) {
             String groupName = toSimplifiedChinese(channelInfo.getGroupTitle());
             String groupTitle = toSimplifiedChinese(channelInfo.getGroupTitle());
-            String name = toSimplifiedChinese(channelInfo.getTvgName() == null || channelInfo.getTvgName().isEmpty() ? channelInfo.getTitle() : channelInfo.getTvgName());
+            String name = toSimplifiedChinese(
+                    channelInfo.getTvgName() == null ||
+                    channelInfo.getTvgName().isEmpty() ||
+                    channelInfo.getTvgName().toLowerCase().contains("null") ?
+                    channelInfo.getTitle() : channelInfo.getTvgName());
             String url = channelInfo.getUrl();
             String tvLogo = channelInfo.getTvgLogo();
 
@@ -254,7 +258,7 @@ public class ChannelHandler {
                 String name = toSimplifiedChinese(item.split(split)[0].trim().toLowerCase());
                 String url = appendIndex > 1 ? item.split(split)[1] : split + item.split(split)[1];
 
-                String nameClean=name.replaceAll("\\s|-|_", "").toLowerCase();
+                String nameClean = name.trim().replaceAll("\\s|-|_", "").toLowerCase();
 
                 if (liveMap.containsKey(nameClean)) {
                     channel = liveMap.get(nameClean);
@@ -281,8 +285,9 @@ public class ChannelHandler {
 
 
         Set<Future<List<ChannelGroup>>> futures = new HashSet<>();
+        Log.d(body);
 
-        String[] bodys = body.split("\n|\r\n");
+        String[] bodys = body.split("\n|\r");
         boolean isBanStart = false;
         List<String> banUrls = new ArrayList<>();
         for (String line : bodys) {
@@ -308,19 +313,18 @@ public class ChannelHandler {
             }
         }
 
-        Map<String, ChannelGroup> groupMap = new LinkedHashMap<>();
+        Map<String, ChannelGroup> name2Group = new LinkedHashMap<>();
 
         for (List<ChannelGroup> groups : futureResults) {
 
             for (ChannelGroup group : groups) {
                 ChannelGroup oldGroup = null;
-                for (String key : groupMap.keySet()) {
+                String tmpGroupName = group.getName().trim().replaceAll("\\s|-|_", "").toLowerCase();
 
-                    String tmpKey = key.replaceAll("\\s|-", "").toLowerCase();
-                    String tmpName = group.getName().replaceAll("\\s|-", "").toLowerCase();
-
-                    if (tmpKey.contains(tmpName) || tmpName.contains(tmpKey)) {
-                        oldGroup = groupMap.get(key);
+                for (String key : name2Group.keySet()) {
+                    String tmpKey = key.trim().replaceAll("\\s|-|_", "").toLowerCase();
+                    if (tmpKey.contains(tmpGroupName) || tmpGroupName.contains(tmpKey)) {
+                        oldGroup = name2Group.get(key);
                         break;
                     }
                 }
@@ -329,18 +333,22 @@ public class ChannelHandler {
                     ArrayList<Channel> channels = group.getChannels();
                     ArrayList<Channel> channelsOld = oldGroup.getChannels();
 
-                    LinkedHashMap<String, Channel> oldChannelMap = new LinkedHashMap<>();
+                    LinkedHashMap<String, Channel> name2Channel = new LinkedHashMap<>();
                     for (Channel channelOld : channelsOld) {
-                        oldChannelMap.put(channelOld.getName().replaceAll("\\s|-", "").toLowerCase(), channelOld);
+                        name2Channel.put(channelOld.getName().trim().replaceAll("\\s|-|_", "").toLowerCase(), channelOld);
                     }
 
 
                     for (Channel channel : channels) {
 
-                        String tmpName = channel.getName().replaceAll("\\s|-", "").toLowerCase();
+                        String tmpName = channel.getName().trim().replaceAll("\\s|-|_", "").toLowerCase();
 
-                        if (oldChannelMap.containsKey(tmpName)) {
-                            Channel oldChannel = oldChannelMap.get(tmpName);
+                        if (tmpName.startsWith("cctv1")) {
+                            Log.d(tmpName + " " + tmpName.length() + tmpName.toCharArray());
+                        }
+
+                        if (name2Channel.containsKey(tmpName)) {
+                            Channel oldChannel = name2Channel.get(tmpName);
 
                             if (removeBanUrl(channel, banUrls).isEmpty()) {
                                 break;
@@ -357,21 +365,21 @@ public class ChannelHandler {
                             if (removeBanUrl(channel, banUrls).isEmpty()) {
                                 break;
                             }
-                            oldChannelMap.put(channel.getName(), channel);
+                            name2Channel.put(tmpName, channel);
                         }
 
                     }
 
-                    group.getChannels().addAll(oldChannelMap.values());
+                    group.getChannels().addAll(name2Channel.values());
                 } else {
-                    groupMap.put(group.getName(), group);
+                    name2Group.put(tmpGroupName, group);
                 }
             }
 
         }
 
 
-        return new ArrayList<>(groupMap.values());
+        return new ArrayList<>(name2Group.values());
     }
 
     private static List<String> removeBanUrl(Channel channel, List<String> banList) {
@@ -382,19 +390,22 @@ public class ChannelHandler {
 
         List<String> urls = channel.getUrls();
         List<String> sources = channel.getSourceNames();
+        sources.clear();
 
-        int index = 0;
         Iterator<String> iterator = urls.iterator();
         while (iterator.hasNext()) {
-            index++;
             String currentElement = iterator.next().trim().toLowerCase();
             for (String ban : banList) {
                 if (currentElement.contains(ban)) {
                     iterator.remove();
-                    sources.remove(index);
+                    break;
                 }
             }
+        }
 
+
+        for (int i = 0; i < urls.size(); i++) {
+            sources.add("源" + (i + 1));
         }
 
         return urls;

@@ -247,7 +247,6 @@ public class AppConfig {
             index = 0;
 
             for (Channel channel : group.getChannels()) {
-                Log.d(num+"");
                 channel.setNum(num++);
                 channel.setIndex(index++);
                 channel.setGroupIndex(group.getIndex());

@@ -40,7 +40,6 @@ public class Channel {
     }
 
     public String getUrl() {
-        Log.d("getUrl:" + sourceIndex);
         return urls.get(sourceIndex);
     }
 }
