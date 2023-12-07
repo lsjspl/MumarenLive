@@ -10,7 +10,7 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -10,9 +10,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.event.RefreshEvent;
-import com.github.tvbox.osc.server.ControlManager;
+import com.github.mr5.live.server.ControlManager;
 import com.github.tvbox.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.tvbox.osc.ui.dialog.ApiHistoryDialog;
 import com.github.tvbox.osc.ui.dialog.BaseDialog;

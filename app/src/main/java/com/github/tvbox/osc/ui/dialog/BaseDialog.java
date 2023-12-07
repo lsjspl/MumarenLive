@@ -8,7 +8,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 
 public class BaseDialog extends Dialog {
     public BaseDialog(@NonNull Context context) {

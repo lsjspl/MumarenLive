@@ -16,7 +16,7 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.entity.MultiItemEntity;
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;

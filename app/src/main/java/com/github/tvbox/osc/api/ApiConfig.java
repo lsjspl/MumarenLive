@@ -5,7 +5,7 @@ import com.github.catvod.crawler.Spider;
 import com.github.mr5.live.base.App;
 import com.github.tvbox.osc.bean.ParseBean;
 import com.github.tvbox.osc.bean.SourceBean;
-import com.github.tvbox.osc.server.ControlManager;
+import com.github.mr5.live.server.ControlManager;
 import com.github.mr5.live.util.HawkConfig;
 import com.github.tvbox.osc.util.MD5;
 import com.lzy.okgo.OkGo;

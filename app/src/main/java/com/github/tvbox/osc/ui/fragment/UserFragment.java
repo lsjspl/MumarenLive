@@ -7,7 +7,7 @@ import android.view.animation.BounceInterpolator;
 import android.widget.LinearLayout;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.mr5.live.base.BaseLazyFragment;
 import com.github.tvbox.osc.bean.Movie;

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.mr5.live.base.BaseActivity;
 import com.github.mr5.live.base.BaseLazyFragment;

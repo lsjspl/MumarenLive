@@ -4,8 +4,8 @@ import android.content.Context;
 import android.view.MotionEvent;
 import android.widget.ProgressBar;
 
+import com.github.mr5.live.R;
 import com.github.mr5.live.util.Log;
-import com.github.tvbox.osc.R;
 
 import org.jetbrains.annotations.NotNull;
 

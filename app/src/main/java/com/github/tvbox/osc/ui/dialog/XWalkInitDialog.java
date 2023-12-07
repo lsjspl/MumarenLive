@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.XWalkUtils;
 import com.lzy.okgo.OkGo;

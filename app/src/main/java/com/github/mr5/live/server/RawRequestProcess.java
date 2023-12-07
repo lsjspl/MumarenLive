@@ -1,4 +1,4 @@
-package com.github.tvbox.osc.server;
+package com.github.mr5.live.server;
 
 import android.content.Context;
 

@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 
 import com.github.tvbox.osc.ui.dialog.BaseDialog;
 import org.jetbrains.annotations.NotNull;

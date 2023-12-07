@@ -1,4 +1,4 @@
-# TVBoxOnlyLive
+# MumarenPlayer
 只有直播的版本，其他多余的功能已经全部隐藏， 专供老年人使用，设置转移到了直播菜单里
 
 支持m3u链接和txt的直播链接格式

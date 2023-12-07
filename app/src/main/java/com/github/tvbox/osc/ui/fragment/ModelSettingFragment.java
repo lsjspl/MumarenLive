@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.github.mr5.live.util.*;
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.mr5.live.base.BaseActivity;
 import com.github.mr5.live.base.BaseLazyFragment;

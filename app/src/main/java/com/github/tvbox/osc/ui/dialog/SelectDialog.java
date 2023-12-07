@@ -7,7 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 

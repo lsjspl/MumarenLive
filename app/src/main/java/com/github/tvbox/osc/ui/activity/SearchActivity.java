@@ -13,7 +13,7 @@ import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.mr5.live.base.BaseActivity;
 import com.github.tvbox.osc.bean.AbsXml;
@@ -21,7 +21,7 @@ import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.event.ServerEvent;
-import com.github.tvbox.osc.server.ControlManager;
+import com.github.mr5.live.server.ControlManager;
 import com.github.tvbox.osc.ui.adapter.PinyinAdapter;
 import com.github.tvbox.osc.ui.adapter.SearchAdapter;
 import com.github.tvbox.osc.ui.dialog.RemoteDialog;

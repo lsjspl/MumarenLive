@@ -1,4 +1,4 @@
-package com.github.tvbox.osc.receiver;
+package com.github.mr5.live.base;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

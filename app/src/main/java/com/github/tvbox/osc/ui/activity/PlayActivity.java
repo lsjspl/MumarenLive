@@ -35,7 +35,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.github.catvod.crawler.Spider;
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.mr5.live.base.BaseActivity;
 import com.github.tvbox.osc.bean.ParseBean;

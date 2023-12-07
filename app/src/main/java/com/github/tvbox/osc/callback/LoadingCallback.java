@@ -1,6 +1,6 @@
 package com.github.tvbox.osc.callback;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.kingja.loadsir.callback.Callback;
 
 /**

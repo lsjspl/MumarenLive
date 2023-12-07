@@ -1,6 +1,5 @@
 package com.github.mr5.live.base;
 
-import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import androidx.multidex.MultiDexApplication;
@@ -9,17 +8,13 @@ import com.github.mr5.live.util.*;
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
 import com.github.tvbox.osc.data.AppDataManager;
-import com.github.tvbox.osc.server.ControlManager;
+import com.github.mr5.live.server.ControlManager;
 import com.kingja.loadsir.core.LoadSir;
 import com.orhanobut.hawk.Hawk;
 
 import lombok.Getter;
 import me.jessyan.autosize.AutoSizeConfig;
 import me.jessyan.autosize.unit.Subunits;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 /**
  * @author pj567

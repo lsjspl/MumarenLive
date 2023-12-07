@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 
 import org.jetbrains.annotations.NotNull;
 

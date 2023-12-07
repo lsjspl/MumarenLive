@@ -6,8 +6,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.github.tvbox.osc.R;
-import com.github.tvbox.osc.server.ControlManager;
+import com.github.mr5.live.R;
+import com.github.mr5.live.server.ControlManager;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 
 import org.jetbrains.annotations.NotNull;

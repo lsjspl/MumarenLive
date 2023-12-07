@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.tvbox.osc">
+    package="com.github.mr5.live">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -29,7 +29,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name="com.github.mr5.live.ui.LivePlayActivity"
+            android:name=".ui.LivePlayActivity"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,34 +39,7 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.activity.DetailActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".ui.activity.PlayActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".ui.activity.PushActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".ui.activity.SearchActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".ui.activity.SettingActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".ui.activity.HistoryActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".ui.activity.CollectActivity"
-            android:screenOrientation="landscape" />
-
-        <receiver android:name=".receiver.SearchReceiver">
-            <intent-filter>
-                <action android:name="android.content.movie.search.Action" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".receiver.CustomWebReceiver">
+        <receiver android:name=".base.CustomWebReceiver">
             <intent-filter>
                 <action android:name="android.content.movie.custom.web.Action" />
             </intent-filter>
@@ -74,7 +47,7 @@
 
 
         <receiver
-            android:name=".receiver.BootReceiver"
+            android:name=".base.BootReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

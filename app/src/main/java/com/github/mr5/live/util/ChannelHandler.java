@@ -7,7 +7,7 @@ import com.github.mr5.live.bean.ChannelInfo;
 import com.github.mr5.live.bean.IJKCode;
 import com.github.mr5.live.bean.ChannelGroup;
 import com.github.mr5.live.bean.Channel;
-import com.github.tvbox.osc.server.ControlManager;
+import com.github.mr5.live.server.ControlManager;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

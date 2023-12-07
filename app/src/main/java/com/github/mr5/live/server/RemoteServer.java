@@ -1,11 +1,11 @@
-package com.github.tvbox.osc.server;
+package com.github.mr5.live.server;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
 
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.event.ServerEvent;
 import com.github.tvbox.osc.util.FileUtils;

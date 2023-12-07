@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.github.mr5.live.util.AppConfig;
-import com.github.tvbox.osc.R;
+import com.github.mr5.live.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.mr5.live.bean.IJKCode;
 import com.github.tvbox.osc.bean.ParseBean;
