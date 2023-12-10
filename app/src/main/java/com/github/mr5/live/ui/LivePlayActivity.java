@@ -467,9 +467,8 @@ public class LivePlayActivity extends BaseActivity {
     private void showChannelInfo() {
         try {
 
-
-            tvChannelInfo.setText(String.format(Locale.getDefault(), "%d %s %s(%d/%d)", currentChannel.getNum(),
-                    currentChannel.getName(), currentChannel.getSourceName(),
+            tvChannelInfo.setText(String.format(Locale.getDefault(), "%s %d %s(%d/%d)",
+                    currentChannel.getName(), currentChannel.getNum(), currentChannel.getSourceName(),
                     currentChannel.getSourceIndex() + 1, currentChannel.getUrls().size()));
 
             FrameLayout.LayoutParams lParams = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -496,8 +495,15 @@ public class LivePlayActivity extends BaseActivity {
             }
             tvNumView.setText(currentChannel.getNum() + "");
             tvNameView.setText(currentChannel.getName());
-            tvInfoView.setText(String.format(Locale.getDefault(), " %s(%d/%d)", currentChannel.getSourceName(),
-                    currentChannel.getSourceIndex() + 1, currentChannel.getUrls().size()));
+
+            tvInfoView.setText(String.format(Locale.getDefault(), " %s(%d/%d) %s"
+                    , currentChannel.getSourceName(),
+                    currentChannel.getSourceIndex() + 1
+                    , currentChannel.getUrls().size()
+                    , Hawk.get(HawkConfig.DEBUG_OPEN, false) ?
+                            currentChannel.getUrls().get(currentChannel.getSourceIndex()) : ""
+            ));
+
 
             tvBottomView.setVisibility(View.VISIBLE);
 
