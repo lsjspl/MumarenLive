@@ -19,7 +19,6 @@ public class Channel {
     private int index;
     private int num;
     private String name;
-    private ArrayList<String> sourceNames;
     private ArrayList<String> urls;
     private int groupIndex;
 
@@ -36,7 +35,7 @@ public class Channel {
     }
 
     public String getSourceName() {
-        return sourceNames.get(sourceIndex);
+        return "源"+sourceIndex;
     }
 
     public String getUrl() {

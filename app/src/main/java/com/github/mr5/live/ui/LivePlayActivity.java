@@ -1129,12 +1129,12 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void loadCurrentSourceList() {
-        ArrayList<String> currentSourceNames = currentChannel.getSourceNames();
+        ArrayList<String> currentSourceNames = currentChannel.getUrls();
         ArrayList<LiveSettingItem> liveSettingItemList = new ArrayList<>();
         for (int j = 0; j < currentSourceNames.size(); j++) {
             LiveSettingItem liveSettingItem = new LiveSettingItem();
             liveSettingItem.setItemIndex(j);
-            liveSettingItem.setItemName(currentSourceNames.get(j));
+            liveSettingItem.setItemName("源"+j);
             liveSettingItemList.add(liveSettingItem);
         }
         liveSettingGroupList.get(0).setLiveSettingItems(liveSettingItemList);

@@ -15,6 +15,7 @@ import com.lzy.okgo.OkGo;
 import com.orhanobut.hawk.Hawk;
 import lombok.Data;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -186,7 +187,6 @@ public class ChannelHandler {
             if (liveMap.containsKey(nameClean)) {
                 channel = liveMap.get(nameClean);
                 channel.getUrls().add(url);
-                channel.getSourceNames().add("源" + channel.getUrls().size());
             } else {
                 channel = new Channel();
                 liveMap.put(nameClean, channel);
@@ -194,8 +194,6 @@ public class ChannelHandler {
                 channel.setLogoUrl(tvLogo);
                 channel.setUrls(new ArrayList<>());
                 channel.getUrls().add(url);
-                channel.setSourceNames(new ArrayList<>());
-                channel.getSourceNames().add("源" + channel.getUrls().size());
                 channels.add(channel);
             }
 
@@ -264,15 +262,12 @@ public class ChannelHandler {
                 if (liveMap.containsKey(nameClean)) {
                     channel = liveMap.get(nameClean);
                     channel.getUrls().add(url);
-                    channel.getSourceNames().add("源" + channel.getUrls().size());
                 } else {
                     channel = new Channel();
                     liveMap.put(nameClean, channel);
                     channel.setName(name);
                     channel.setUrls(new ArrayList<>());
                     channel.getUrls().add(url);
-                    channel.setSourceNames(new ArrayList<>());
-                    channel.getSourceNames().add("源" + channel.getUrls().size());
                     channels.add(channel);
                 }
 
@@ -353,21 +348,13 @@ public class ChannelHandler {
                         if (name2Channel.containsKey(tmpName)) {
                             Channel oldChannel = name2Channel.get(tmpName);
 
-                            if (removeBanUrl(channel, banUrls).isEmpty()) {
-                                break;
-                            }
-
                             oldChannel.getUrls().addAll(channel.getUrls());
-                            oldChannel.getSourceNames().addAll(channel.getSourceNames());
 
                             if (oldChannel.getLogoUrl() == null || oldChannel.getLogoUrl().isEmpty()) {
                                 oldChannel.setLogoUrl(channel.getLogoUrl());
                             }
 
                         } else {
-                            if (removeBanUrl(channel, banUrls).isEmpty()) {
-                                break;
-                            }
                             name2Channel.put(tmpName, channel);
                         }
 
@@ -381,38 +368,47 @@ public class ChannelHandler {
 
         }
 
-
-        return new ArrayList<>(name2Group.values());
+        return banUrls(name2Group.values(), banUrls);
     }
 
-    private static List<String> removeBanUrl(Channel channel, List<String> banList) {
+    @NotNull
+    private static ArrayList<ChannelGroup> banUrls(Collection<ChannelGroup> values, List<String> banUrls) {
+        Iterator<ChannelGroup> groupIterator = values.iterator();
 
-        if (banList.isEmpty()) {
-            return banList;
-        }
+        while (groupIterator.hasNext()) {
+            ChannelGroup group = groupIterator.next();
+            Iterator<Channel> channelIterator = group.getChannels().iterator();
 
-        List<String> urls = channel.getUrls();
-        List<String> sources = channel.getSourceNames();
-        sources.clear();
-
-        Iterator<String> iterator = urls.iterator();
-        while (iterator.hasNext()) {
-            String currentElement = iterator.next().trim().toLowerCase();
-            for (String ban : banList) {
-                if (currentElement.contains(ban)) {
-                    iterator.remove();
-                    break;
+            while (channelIterator.hasNext()) {
+                Channel channel = channelIterator.next();
+                ArrayList<String> urls = new ArrayList<>(new LinkedHashSet<>(channel.getUrls()));
+                Iterator<String> urlIte = urls.iterator();
+                while (urlIte.hasNext()) {
+                    String url = urlIte.next().trim().toLowerCase();
+                    for (String ban : banUrls) {
+                        if (url.contains(ban)) {
+                            urlIte.remove();
+                            break;
+                        }
+                    }
                 }
+
+                channel.setUrls(urls);
+
+                if (channel.getUrls().isEmpty()) {
+                    channelIterator.remove();
+                }
+
+            }
+
+            if (group.getChannels().isEmpty()) {
+                groupIterator.remove();
             }
         }
 
-
-        for (int i = 0; i < urls.size(); i++) {
-            sources.add("源" + (i + 1));
-        }
-
-        return urls;
+        return new ArrayList<>(values);
     }
+
 
     private static void extractInfoFromExtInf(String line, ChannelInfo channel) {
 
