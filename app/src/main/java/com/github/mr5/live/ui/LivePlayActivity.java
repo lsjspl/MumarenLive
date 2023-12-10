@@ -1134,7 +1134,7 @@ public class LivePlayActivity extends BaseActivity {
         for (int j = 0; j < currentSourceNames.size(); j++) {
             LiveSettingItem liveSettingItem = new LiveSettingItem();
             liveSettingItem.setItemIndex(j);
-            liveSettingItem.setItemName("源"+j);
+            liveSettingItem.setItemName("源"+(j+1));
             liveSettingItemList.add(liveSettingItem);
         }
         liveSettingGroupList.get(0).setLiveSettingItems(liveSettingItemList);

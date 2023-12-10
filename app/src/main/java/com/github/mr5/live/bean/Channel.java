@@ -35,7 +35,7 @@ public class Channel {
     }
 
     public String getSourceName() {
-        return "源"+sourceIndex;
+        return "源"+(sourceIndex+1);
     }
 
     public String getUrl() {
