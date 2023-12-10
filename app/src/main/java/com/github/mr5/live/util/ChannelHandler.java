@@ -62,6 +62,7 @@ public class ChannelHandler {
                     if (!AppConfig.getInstance().getChannelGroupList().isEmpty()) {
                         fillUseSource();
                         Log.d("缓存生效");
+                        Log.d(AppConfig.getInstance().getChannelGroupList().toString());
                         return;
                     }
                 }
@@ -162,9 +163,9 @@ public class ChannelHandler {
             String groupTitle = toSimplifiedChinese(channelInfo.getGroupTitle());
             String name = toSimplifiedChinese(
                     channelInfo.getTvgName() == null ||
-                    channelInfo.getTvgName().isEmpty() ||
-                    channelInfo.getTvgName().toLowerCase().contains("null") ?
-                    channelInfo.getTitle() : channelInfo.getTvgName());
+                            channelInfo.getTvgName().isEmpty() ||
+                            channelInfo.getTvgName().toLowerCase().contains("null") ?
+                            channelInfo.getTitle() : channelInfo.getTvgName());
             String url = channelInfo.getUrl();
             String tvLogo = channelInfo.getTvgLogo();
 
@@ -244,11 +245,11 @@ public class ChannelHandler {
                 int appendIndex = 0;
 
                 for (String tmp : splitFixs) {
-                    appendIndex++;
                     if (item.contains(tmp)) {
                         split = tmp;
                         break;
                     }
+                    appendIndex++;
                 }
 
                 if (split.isEmpty()) {
@@ -256,7 +257,7 @@ public class ChannelHandler {
                 }
 
                 String name = toSimplifiedChinese(item.split(split)[0].trim().toLowerCase());
-                String url = appendIndex > 1 ? item.split(split)[1] : split + item.split(split)[1];
+                String url = appendIndex > 1 ? split + item.split(split)[1] : item.split(split)[1];
 
                 String nameClean = name.trim().replaceAll("\\s|-|_", "").toLowerCase();
 
@@ -291,9 +292,11 @@ public class ChannelHandler {
         boolean isBanStart = false;
         List<String> banUrls = new ArrayList<>();
         for (String line : bodys) {
-            if (line.contains("mumaren") || line.trim().isEmpty()) {
-            } else if (line.startsWith("#ban")) {
-                isBanStart = true;
+            if (line.trim().isEmpty() || line.startsWith("#")) {
+                if (line.startsWith("#mumaren")) {
+                } else if (line.startsWith("#ban")) {
+                    isBanStart = true;
+                }
             } else if (isBanStart) {
                 banUrls.add(line.toLowerCase().trim());
             } else {

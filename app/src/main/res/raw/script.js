@@ -282,4 +282,4 @@ else if (url.indexOf('api.html') > 0)
 else if (url.indexOf('all.html') > 0)
     showPanel(3);
 else
-    showPanel(1);
+    showPanel(3);

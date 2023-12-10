@@ -34,7 +34,7 @@ public class ChannelGroupHandler {
     public static int otherType = 0;
 
     public static List<ChannelGroup> handler(String configUrl, List<ChannelGroup> groups) throws ExecutionException, InterruptedException {
-
+        List<String> banUrls = new ArrayList<>();
         Future<LinkedHashMap<String, String>> submit = AppConfig.getInstance().getExecutors().submit(() -> {
 
             String url = configUrl;
@@ -49,10 +49,19 @@ public class ChannelGroupHandler {
             String[] lines = body.split("\\r\\n|\\n");
             LinkedHashMap<String, String> groupRules = new LinkedHashMap<>();
 
+            boolean isBanStart = false;
+
+
             for (String line : lines) {
                 if (line.isEmpty() || line.startsWith("#")) {
+                    if (line.startsWith("#mumaren")) {
+                    } else if (line.startsWith("#ban")) {
+                        isBanStart = true;
+                    }
                 } else if (line.startsWith("其他")) {
                     otherType = otherTypes.indexOf(line.split(":")[1]);
+                } else if (isBanStart) {
+                    banUrls.addAll(Arrays.asList(line.toLowerCase().trim().split(",")));
                 } else {
                     groupRules.put(line.split(":")[0], line.split(":")[1]);
                 }
@@ -60,10 +69,10 @@ public class ChannelGroupHandler {
             return groupRules;
         });
 
-        return handler(submit.get(), groups);
+        return handler(submit.get(), groups, banUrls);
     }
 
-    private static List<ChannelGroup> handler(LinkedHashMap<String, String> groupRules, List<ChannelGroup> groups) {
+    private static List<ChannelGroup> handler(LinkedHashMap<String, String> groupRules, List<ChannelGroup> groups, List<String> banUrls) {
         LinkedHashMap<String, ChannelGroup> name2Group = new LinkedHashMap<>();
         for (String key : groupRules.keySet()) {
             ChannelGroup channelGroup = new ChannelGroup();
@@ -76,22 +85,26 @@ public class ChannelGroupHandler {
         for (ChannelGroup channelGroup : groups) {
 
             for (Channel channel : channelGroup.getChannels()) {
+
+                if (isBan(banUrls, channel)) {
+                    continue;
+                }
+
                 for (String key : groupRules.keySet()) {
 
                     String[] values = groupRules.get(key).split(",");
                     for (String value : values) {
-                        String tmpValue=value.trim().replaceAll("\\s|-|_", "").toLowerCase();
-                        String tmpName=channel.getName().trim().replaceAll("\\s|-|_", "").toLowerCase();
-                        if (tmpValue.contains(tmpName) ||tmpName.contains(tmpValue)) {
+                        String tmpValue = value.trim().replaceAll("\\s|-|_", "").toLowerCase();
+                        String tmpName = channel.getName().trim().replaceAll("\\s|-|_", "").toLowerCase();
+                        if (tmpValue.contains(tmpName) || tmpName.contains(tmpValue)) {
 
 
+                            boolean isfind = false;
 
-                            boolean isfind=false;
-
-                            for(Channel oldChannel:name2Group.get(key).getChannels()){
-                                String oldChannelName=oldChannel.getName().trim().replaceAll("\\s|-|_", "").toLowerCase();
-                                if(oldChannelName.equals(tmpName)){
-                                    isfind=true;
+                            for (Channel oldChannel : name2Group.get(key).getChannels()) {
+                                String oldChannelName = oldChannel.getName().trim().replaceAll("\\s|-|_", "").toLowerCase();
+                                if (oldChannelName.equals(tmpName)) {
+                                    isfind = true;
                                     oldChannel.getUrls().addAll(channel.getUrls());
                                     oldChannel.getSourceNames().addAll(channel.getSourceNames());
 
@@ -102,7 +115,7 @@ public class ChannelGroupHandler {
                                 }
                             }
 
-                            if(!isfind){
+                            if (!isfind) {
                                 channel.setIndex(name2Group.get(key).getChannels().size());
                                 name2Group.get(key).getChannels().add(channel);
                             }
@@ -120,6 +133,15 @@ public class ChannelGroupHandler {
         AppConfig.getInstance().sort(results);
 
         return results;
+    }
+
+    private static boolean isBan(List<String> banUrls, Channel channel) {
+        for (String ban : banUrls) {
+            if (channel.getName().trim().toLowerCase().contains(ban.trim().toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
