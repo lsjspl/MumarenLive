@@ -16,14 +16,14 @@
 
 ## 增强了如下功能
 
-- 自动缓存源
-- 多源合并
-- 频道分组(当分组[配置](https://github.com/lsjspl/TV/blob/main/mumarenGroup)存在的情况下默认开启)
-- 垃圾源屏蔽
+- 自动缓存源`(默认缓存3天，设置里可更改，时间设置的越长越好，因为如果加载的源比较大的话,会消耗大量时间)`
+- 多源合并`(参考[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren))`
+- 频道分组`(当分组[配置](https://github.com/lsjspl/TV/blob/main/mumarenGroup)存在的情况下默认开启)`
+- 垃圾源屏蔽`(参考[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren)中的#ban下的内容)`
 - 频道信息Banner
 - 删除多余功能
-- 开机启动
-
+- 开机启动`(开机启动代码已经加进去了，但是真正想实现开机启动可能要借助另外一个app，不同电视不一样，小米测试可行)`
+- debug功能更改`(会把logcat的日志输出到download文件夹下)`
 
 
 
