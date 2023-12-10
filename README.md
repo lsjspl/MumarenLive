@@ -7,21 +7,29 @@
 >增强了如下功能
 * 自动缓存源
 * 多源合并
-* 频道分组
+* 频道分组(当分组[配置](https://github.com/lsjspl/TV/blob/main/mumarenGroup)存在的情况下默认开启)
 * 垃圾源屏蔽
 * 频道信息Banner
 * 删除多余功能
+* 开机启动
+
 
 >源示例   
 > 请参考我另外的项目
-https://github.com/lsjspl/TV                      
+https://github.com/lsjspl/TV
 
 
+> 注意：如果在设备性能不足的情况下，强行载入大量直播源，可能会导致软件崩溃
 
->支持m3u链接和txt的直播链接格式
->m3u文件格式应该如下图
-![image](https://github.com/lsjspl/TVBoxOnlyLive/assets/2315298/f1b11e1f-07a2-4a3d-9c34-c8bef37e12f5)
+> 预期接下来可能会做，也可能不会做的事情
+* 增加节目信息
+* 修改填写源的地址的逻辑
+* 分批异步加载频道优化性能
+* 删除冗余代码
+* 增加设置项
+* 优化触屏体验
+* 等等
 
->txt的可以使用之前的tvbox的通用格式，就是把之前文件的live里的链接贴进去就行
-链接内容应该如下图
-![image](https://github.com/lsjspl/TVBoxOnlyLive/assets/2315298/712f8b0f-5eda-4c1b-b633-be891d63ff47)
+ 支持[m3u](https://github.com/lsjspl/TV/blob/main/ipv6.m3u)、[txt](https://github.com/lsjspl/TV/blob/main/LIVE.txt)、以及[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren)文件展示的混合格式
+（注意：混合格式会开启多个线程，并行读取其中内容，然后合并）
+
