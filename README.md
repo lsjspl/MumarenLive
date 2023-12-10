@@ -13,6 +13,9 @@
 
 > 注意：如果在设备性能不足的情况下，强行载入大量直播源，可能会导致软件崩溃
 
+## 支持版本
+
+理论上支持安卓5以上所有版本`（目前测试过的版本安卓5，安卓8，安卓11）`
 
 ## 增强了如下功能
 
@@ -20,10 +23,10 @@
 - 多源合并`(参考[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren))`
 - 频道分组`(当分组[配置](https://github.com/lsjspl/TV/blob/main/mumarenGroup)存在的情况下默认开启)`
 - 垃圾源屏蔽`(参考[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren)中的#ban下的内容)`
-- 频道信息Banner
-- 删除多余功能
 - 开机启动`(开机启动代码已经加进去了，但是真正想实现开机启动可能要借助另外一个app，不同电视不一样，小米测试可行)`
 - debug功能更改`(会把logcat的日志输出到download文件夹下)`
+- 增加频道信息底部Banner
+- 删除多余功能
 
 
 
@@ -37,6 +40,8 @@
 - 优化触屏体验
 - 等等
 
+
+>个人时间有限，用的上的朋友可以多测试反馈bug
 
 
 ## 源示例
