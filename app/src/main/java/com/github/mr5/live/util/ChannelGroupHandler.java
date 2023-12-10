@@ -106,7 +106,6 @@ public class ChannelGroupHandler {
                                 if (oldChannelName.equals(tmpName)) {
                                     isfind = true;
                                     oldChannel.getUrls().addAll(channel.getUrls());
-                                    oldChannel.getSourceNames().addAll(channel.getSourceNames());
 
                                     if (oldChannel.getLogoUrl() == null || oldChannel.getLogoUrl().isEmpty()) {
                                         oldChannel.setLogoUrl(channel.getLogoUrl());
