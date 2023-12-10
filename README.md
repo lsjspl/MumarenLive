@@ -1,7 +1,6 @@
 
 <img src="https://github.com/lsjspl/MumarenPlayer/blob/main/app/src/main/res/drawable-hdpi/app_icon.png?raw=true" width="200" />            
 
-
 # 牧马人播放器             
 只有直播的版本，其他多余的功能已经全部隐藏， 专供**老年人**使用
 
