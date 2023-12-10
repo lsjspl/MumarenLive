@@ -1,7 +1,7 @@
 
  # <img src="https://github.com/lsjspl/MumarenPlayer/assets/2315298/84bf4fc0-4aa6-492f-97e9-fbe30c786ae6" style="width: 100px;"/>  牧马人播放器            
 
-只有直播的功能，其他多余的功能已经全部隐藏， 专供**家里老人**使用                     
+电视家之类的软件突然倒下，导致没有简单好用的（主要供家里老人使用）的直播软件，所以本项目只保留了直播功能，供老人或者有电视需求的人使用。
 
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/lsjspl/MumarenPlayer?style=for-the-badge)
