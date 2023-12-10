@@ -8,7 +8,7 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/lsjspl/MumarenPlayer?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/lsjspl/MumarenPlayer?style=for-the-badge)
 
->支持[m3u](https://github.com/lsjspl/TV/blob/main/ipv6.m3u)、[txt](https://github.com/lsjspl/TV/blob/main/LIVE.txt)、以及[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren)文件展示的混合格式
+>支持[m3u](https://github.com/lsjspl/TV/blob/main/ipv6.m3u)、[txt](https://github.com/lsjspl/TV/blob/main/LIVE.txt)、以及[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren)文件展示的混合格式      
  `（注意：混合格式会开启多个线程，并行读取其中内容，然后合并）`
 
 ## 增强了如下功能
