@@ -1,7 +1,5 @@
 
-          
-
- # <img src="https://github.com/lsjspl/MumarenPlayer/blob/main/app/src/main/res/drawable-hdpi/app_icon.png?raw=true" style="width: 100px;"/>  牧马人播放器            
+ # <img src="https://github.com/lsjspl/MumarenPlayer/assets/2315298/7890ab27-470c-4429-b2af-2cac308f38c9" style="width: 100px;"/>  牧马人播放器            
 
 只有直播的功能，其他多余的功能已经全部隐藏， 专供**家里老人**使用                     
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/lsjspl/MumarenPlayer?style=for-the-badge)
