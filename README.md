@@ -21,7 +21,7 @@
 
 ## 增强了如下功能
 
-- 自动缓存源`(默认缓存3天，设置里可更改，时间设置的越长越好，因为如果加载的源比较大的话,会消耗大量时间)`
+- 自动缓存源文件`(默认缓存3天，设置里可更改，时间设置的越长越好，因为如果加载的源比较大的话,会消耗大量时间)`
 - 多源合并`(参考[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren))`
 - 频道分组`(当分组[配置](https://github.com/lsjspl/TV/blob/main/mumarenGroup)存在的情况下默认开启)`
 - 垃圾源屏蔽`(参考[mumaren](https://github.com/lsjspl/TV/blob/main/mumaren)中的#ban下的内容)`
@@ -29,7 +29,7 @@
 - debug功能更改`(会把logcat的日志输出到download文件夹下)`
 - 增加频道信息底部Banner
 - 删除多余功能
-
+- 自动保存节目上次使用的源
 
 
 ## 预期接下来可能会做，也可能不会做的事情
