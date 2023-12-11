@@ -381,8 +381,7 @@ public class ChannelHandler {
 
             while (channelIterator.hasNext()) {
                 Channel channel = channelIterator.next();
-                ArrayList<String> urls = new ArrayList<>(new LinkedHashSet<>(channel.getUrls()));
-                Iterator<String> urlIte = urls.iterator();
+                Iterator<String> urlIte = channel.getUrls().iterator();
                 while (urlIte.hasNext()) {
                     String url = urlIte.next().trim().toLowerCase();
                     for (String ban : banUrls) {
@@ -392,8 +391,6 @@ public class ChannelHandler {
                         }
                     }
                 }
-
-                channel.setUrls(urls);
 
                 if (channel.getUrls().isEmpty()) {
                     channelIterator.remove();
