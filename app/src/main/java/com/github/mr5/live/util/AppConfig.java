@@ -250,6 +250,7 @@ public class AppConfig {
                 channel.setNum(num++);
                 channel.setIndex(index++);
                 channel.setGroupIndex(group.getIndex());
+                channel.setUrls(new ArrayList<>(new LinkedHashSet<>(channel.getUrls())));
             }
         }
     }
